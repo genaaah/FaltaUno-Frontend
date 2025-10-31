@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1751026404997,
+    "email": "test1@mail.com",
+    "password": "1234",
+    "team_name": "Barcha",
+    "team_shield": "https://upload.wikimedia.org/wikipedia/en/4/47/FC_Barcelona_%28crest%29.svg"
+  },
+  {
+    "id": 1751026407911,
+    "email": "test2@mail.com",
+    "password": "1234",
+    "team_name": "Man City",
+    "team_shield": "https://upload.wikimedia.org/wikipedia/en/e/eb/Manchester_City_FC_badge.svg"
+  }
+]
