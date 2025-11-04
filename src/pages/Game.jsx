@@ -3,12 +3,14 @@ import { useAuth } from "../context/AuthContext";
 import { useMatches } from "../hooks/useMatches";
 import CreateMatchModal from "../components/Game/CreateMatchModal";
 import MatchGrid from "../components/Game/MatchGrid";
+import CalendarModal from "../components/Game/CalendarModal";
 
 function Game() {
   const { user } = useAuth();
   const { matches, createMatch, deleteMatch, joinMatch, leaveMatch } =
     useMatches();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
   const allUsers = JSON.parse(localStorage.getItem("allUsers") || "[]");
 
@@ -58,7 +60,7 @@ function Game() {
           COMPLETAR PARTIDO
         </button>
         <button
-          onClick={() => alert("Próximamente...")}
+          onClick={() => setIsCalendarOpen(true)}
           className="bg-green-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-green-700 transition-colors"
         >
           VER CALENDARIO
@@ -77,6 +79,13 @@ function Game() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onCreate={handleCreateMatch}
+      />
+
+      <CalendarModal
+        isOpen={isCalendarOpen}
+        onClose={() => setIsCalendarOpen(false)}
+        matches={matches}
+        users={allUsers}
       />
     </div>
   );
