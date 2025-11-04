@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useMatches } from "../hooks/useMatches";
+import { useLocation } from "react-router-dom";
 import CreateMatchModal from "../components/Game/CreateMatchModal";
 import MatchGrid from "../components/Game/MatchGrid";
 import CalendarModal from "../components/Game/CalendarModal";
@@ -9,10 +10,18 @@ function Game() {
   const { user } = useAuth();
   const { matches, createMatch, deleteMatch, joinMatch, leaveMatch } =
     useMatches();
+  const location = useLocation();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
   const allUsers = JSON.parse(localStorage.getItem("allUsers") || "[]");
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    if (urlParams.get('calendar') === 'true') {
+      setIsCalendarOpen(true);
+    }
+  }, [location.search]);
 
   const handleCreateMatch = (newMatch) => {
     const exists = matches.some(
