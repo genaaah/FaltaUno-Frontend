@@ -32,10 +32,7 @@ function Navbar() {
               className="w-14 h-14 object-contain"
             />
             <p className="text-green-200 text-sm text-center">
-              Equipo{" "}
-              <span className="font-bold text-white block">
-                {user?.team_name}
-              </span>
+              {user?.username} - {user?.team_name}
             </p>
             {user?.team_shield &&
               user.team_shield !==
