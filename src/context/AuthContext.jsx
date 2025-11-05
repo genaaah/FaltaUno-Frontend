@@ -42,7 +42,7 @@ export function AuthProvider({ children }) {
     return false;
   };
 
-  const register = (name, email, password) => {
+  const register = (name, displayName, email, password) => {
     const allUsers = JSON.parse(localStorage.getItem("allUsers") || "[]");
 
     if (allUsers.find((u) => u.email === email)) {
@@ -52,6 +52,8 @@ export function AuthProvider({ children }) {
 
     const newUser = {
       id: Date.now(),
+      name,
+      username: displayName,
       email,
       password,
       team_name: "Sin equipo",

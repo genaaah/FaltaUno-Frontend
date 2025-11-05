@@ -3,13 +3,14 @@ import React, { useState } from "react";
 function Register({ onRegister, onSwitchToLogin }) {
   const [formData, setFormData] = useState({
     name: "",
+    displayName: "",
     email: "",
     password: "",
   });
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onRegister(formData.name, formData.email, formData.password);
+    onRegister(formData.name, formData.displayName, formData.email, formData.password);
   };
 
   const handleChange = (e) => {
@@ -35,6 +36,25 @@ function Register({ onRegister, onSwitchToLogin }) {
           value={formData.name}
           onChange={handleChange}
           placeholder="Tu nombre"
+          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+          required
+        />
+      </div>
+
+      <div>
+        <label
+          htmlFor="register-displayName"
+          className="block text-sm font-medium text-gray-700 mb-2"
+        >
+          Nombre para mostrar
+        </label>
+        <input
+          type="text"
+          id="register-displayName"
+          name="displayName"
+          value={formData.displayName}
+          onChange={handleChange}
+          placeholder="Nombre que se mostrará en la app"
           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
           required
         />

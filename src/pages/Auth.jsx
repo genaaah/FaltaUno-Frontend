@@ -18,8 +18,8 @@ function Auth() {
     }
   };
 
-  const handleRegister = (name, email, password) => {
-    if (register(name, email, password)) {
+  const handleRegister = (name, displayName, email, password) => {
+    if (register(name, displayName, email, password)) {
       navigate("/");
     }
   };
