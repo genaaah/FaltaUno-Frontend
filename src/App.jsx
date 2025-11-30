@@ -10,6 +10,7 @@ import Navbar from "./components/Layout/Navbar";
 import Footer from "./components/Layout/Footer";
 import Home from "./pages/Home";
 import Game from "./pages/Game";
+import Calendar from "./pages/Calendar";
 import Auth from "./pages/Auth";
 
 function ProtectedRoute({ children }) {
@@ -32,6 +33,7 @@ function AppContent() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/game" element={<Game />} />
+            <Route path="/calendarios" element={<Calendar />} />
           </Routes>
           <Footer />
         </div>

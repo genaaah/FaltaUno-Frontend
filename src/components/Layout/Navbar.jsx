@@ -80,8 +80,10 @@ function Navbar() {
             </li>
             <li>
               <button
-                onClick={() => alert("Próximamente...")}
-                className="w-full text-left px-4 py-3 rounded-lg transition-colors hover:bg-green-900 hover:text-green-300"
+                onClick={() => navigate("/calendarios")}
+                className={`w-full text-left px-4 py-3 rounded-lg transition-colors hover:bg-green-900 hover:text-green-300 ${isActive(
+                  "/calendarios"
+                )}`}
               >
                 Calendario
               </button>
