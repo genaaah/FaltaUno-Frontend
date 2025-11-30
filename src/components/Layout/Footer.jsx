@@ -2,11 +2,14 @@ import React, { useState } from "react";
 import logo from "../../assets/logo-falta1.png";
 import ContactModal from "./ContactModal";
 import TermsModal from "./TermsModal";
+import PrivacyModal from "./PrivacyModal";
 import terms from '../../content/TERMS.md?raw';
+import privacy from '../../content/PRIVACY.md?raw';
 
 function Footer() {
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
+  const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false);
 
   return (
     <>
@@ -22,12 +25,12 @@ function Footer() {
                 Términos
               </button>
               <span className="text-green-800">•</span>
-              <a
-                href="#"
+              <button
+                onClick={() => setIsPrivacyModalOpen(true)}
                 className="font-semibold hover:text-green-600 transition-colors text-sm"
               >
                 Privacidad
-              </a>
+              </button>
             </div>
 
             {/* Center - Logo and Info */}
@@ -83,6 +86,11 @@ function Footer() {
         isOpen={isTermsModalOpen}
         onClose={() => setIsTermsModalOpen(false)}
         text={terms}
+      />
+      <PrivacyModal
+        isOpen={isPrivacyModalOpen}
+        onClose={() => setIsPrivacyModalOpen(false)}
+        text={privacy}
       />
     </>
   );
