@@ -23,7 +23,7 @@ function Navbar() {
 
   return (
     <>
-      <nav className="w-64 bg-green-950 text-green-100 p-6 flex flex-col justify-between rounded-r-2xl h-screen sticky top-0">
+      <nav className="w-64 bg-green-950 text-green-100 p-6 flex flex-col justify-between rounded-r-2xl h-auto lg:h-screen lg:sticky lg:top-0 lg:overflow-y-auto">
         <div>
           <div className="flex flex-col items-center gap-3 mb-6">
             <img
