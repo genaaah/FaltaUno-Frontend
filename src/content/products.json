@@ -1,0 +1,132 @@
+[
+  {
+    "id": "p1",
+    "name": "Camiseta Falta1",
+    "price": 2500,
+    "currency": "ARS",
+    "description": "Camiseta oficial de Falta1 con logo.",
+    "image": ""
+  },
+  {
+    "id": "p2",
+    "name": "Short Deportivo",
+    "price": 1500,
+    "currency": "ARS",
+    "description": "Short deportivo.",
+    "image": ""
+  },
+  {
+    "id": "p3",
+    "name": "Medias",
+    "price": 600,
+    "currency": "ARS",
+    "description": "Medias con compresión ligera.",
+    "image": ""
+  },
+  {
+    "id": "p4",
+    "name": "Pelota",
+    "price": 4200,
+    "currency": "ARS",
+    "description": "Pelota.",
+    "image": ""
+  },
+  {
+    "id": "p5",
+    "name": "Botella Reutilizable",
+    "price": 450,
+    "currency": "ARS",
+    "description": "Botella térmica.",
+    "image": ""
+  },
+  {
+    "id": "p6",
+    "name": "Gorra Falta1",
+    "price": 700,
+    "currency": "ARS",
+    "description": "Gorra con visera y logo.",
+    "image": ""
+  }
+
+  ,
+  {
+    "id": "p7",
+    "name": "Toalla de microfibra",
+    "price": 550,
+    "currency": "ARS",
+    "description": "Toalla ligera, de secado rápido, ideal para entrenamientos.",
+    "image": ""
+  },
+  {
+    "id": "p8",
+    "name": "Botinera",
+    "price": 1800,
+    "currency": "ARS",
+    "description": "Bolsa resistente con compartimento para calzado y bolsillo lateral.",
+    "image": ""
+  },
+  {
+    "id": "p9",
+    "name": "Muñequera deportiva",
+    "price": 320,
+    "currency": "ARS",
+    "description": "Par de muñequeras absorbentes.",
+    "image": ""
+  },
+  {
+    "id": "p10",
+    "name": "Cinta de capitán",
+    "price": 250,
+    "currency": "ARS",
+    "description": "Cinta elastica para usar como brazalete de capitán.",
+    "image": ""
+  },
+  {
+    "id": "p11",
+    "name": "Set de conos (6)",
+    "price": 680,
+    "currency": "ARS",
+    "description": "Conos de entrenamiento apilables.",
+    "image": ""
+  },
+  {
+    "id": "p12",
+    "name": "Guantes de arquero",
+    "price": 3200,
+    "currency": "ARS",
+    "description": "Guantes con refuerzo en palma y agarre mejorado.",
+    "image": ""
+  },
+  {
+    "id": "p13",
+    "name": "Buzo con capucha",
+    "price": 2900,
+    "currency": "ARS",
+    "description": "Buzo de friza con capucha y bolsillo canguro.",
+    "image": ""
+  },
+  {
+    "id": "p14",
+    "name": "Pantalón de entrenamiento",
+    "price": 2200,
+    "currency": "ARS",
+    "description": "Pantalón elástico y transpirable para entrenar con comodidad.",
+    "image": ""
+  },
+  {
+    "id": "p15",
+    "name": "Pack medias compresión (2 pares)",
+    "price": 950,
+    "currency": "ARS",
+    "description": "Medias de compresión para soporte y recuperación.",
+    "image": ""
+  },
+  {
+    "id": "p16",
+    "name": "Bolson porta pelotas",
+    "price": 1250,
+    "currency": "ARS",
+    "description": "Bolso resistente para transportar hasta 3 pelotas.",
+    "image": ""
+  }
+]

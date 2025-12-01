@@ -12,6 +12,7 @@ import Home from "./pages/Home";
 import Game from "./pages/Game";
 import Calendar from "./pages/Calendar";
 import Auth from "./pages/Auth";
+import Store from "./pages/Store";
 
 function ProtectedRoute({ children }) {
   const { user } = useAuth();
@@ -33,6 +34,7 @@ function AppContent() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/game" element={<Game />} />
+            <Route path="/store" element={<Store />} />
             <Route path="/calendarios" element={<Calendar />} />
           </Routes>
         </main>

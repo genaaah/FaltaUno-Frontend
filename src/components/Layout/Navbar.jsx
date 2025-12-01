@@ -94,8 +94,10 @@ function Navbar() {
           <ul className="space-y-2">
             <li>
               <button
-                onClick={() => alert("Próximamente...")}
-                className="w-full text-left px-4 py-3 rounded-lg transition-colors hover:bg-green-900 hover:text-green-300"
+                onClick={() => navigate("/store")}
+                className={`w-full text-left px-4 py-3 rounded-lg transition-colors hover:bg-green-900 hover:text-green-300 ${isActive(
+                  "/store"
+                )}`}
               >
                 Tienda
               </button>
