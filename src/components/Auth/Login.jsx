@@ -7,6 +7,7 @@ function Login({ onLogin, onSwitchToRegister }) {
     password: "",
   });
   const [errors, setErrors] = useState({ email: "", password: "" });
+  const [isLoading, setIsLoading] = useState(false);
 
   const validateEmail = (email) => {
     if (!email) return "El email es requerido.";
@@ -16,25 +17,38 @@ function Login({ onLogin, onSwitchToRegister }) {
 
   const validatePassword = (password) => {
     if (!password) return "La contraseña es requerida.";
-    return password.length >= 6 ? "" : "La contraseña debe tener al menos 6 caracteres.";
+    return "";
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
+
     const emailError = validateEmail(formData.email);
     const passwordError = validatePassword(formData.password);
     setErrors({ email: emailError, password: passwordError });
-    if (emailError || passwordError) return;
-    onLogin(formData.email, formData.password);
+
+    if (emailError || passwordError) {
+      setIsLoading(false);
+      return;
+    }
+
+    const result = await onLogin(formData.email, formData.password);
+    setIsLoading(false);
+
+    if (!result.success) {
+      alert(result.message || "Error en el inicio de sesión");
+    }
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
 
-    // Real-time validation
-    if (name === "email") setErrors((prev) => ({ ...prev, email: validateEmail(value) }));
-    if (name === "password") setErrors((prev) => ({ ...prev, password: validatePassword(value) }));
+    if (name === "email")
+      setErrors((prev) => ({ ...prev, email: validateEmail(value) }));
+    if (name === "password")
+      setErrors((prev) => ({ ...prev, password: validatePassword(value) }));
   };
 
   const [isRecoverOpen, setIsRecoverOpen] = useState(false);
@@ -55,11 +69,15 @@ function Login({ onLogin, onSwitchToRegister }) {
           value={formData.email}
           onChange={handleChange}
           placeholder="ejemplo@mail.com"
-          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent ${errors.email ? 'border-red-400' : 'border-gray-300'}`}
+          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent ${
+            errors.email ? "border-red-400" : "border-gray-300"
+          }`}
           aria-invalid={errors.email ? "true" : "false"}
           required
         />
-        {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+        {errors.email && (
+          <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+        )}
       </div>
 
       <div>
@@ -76,19 +94,54 @@ function Login({ onLogin, onSwitchToRegister }) {
           value={formData.password}
           onChange={handleChange}
           placeholder="********"
-          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent ${errors.password ? 'border-red-400' : 'border-gray-300'}`}
+          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent ${
+            errors.password ? "border-red-400" : "border-gray-300"
+          }`}
           aria-invalid={errors.password ? "true" : "false"}
           required
         />
-        {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
+        {errors.password && (
+          <p className="text-red-500 text-xs mt-1">{errors.password}</p>
+        )}
       </div>
 
       <button
         type="submit"
-        className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors disabled:opacity-60"
-        disabled={Boolean(errors.email || errors.password) || !formData.email || !formData.password}
+        className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center"
+        disabled={
+          isLoading ||
+          Boolean(errors.email || errors.password) ||
+          !formData.email ||
+          !formData.password
+        }
       >
-        Iniciar sesión
+        {isLoading ? (
+          <>
+            <svg
+              className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
+            </svg>
+            Iniciando sesión...
+          </>
+        ) : (
+          "Iniciar sesión"
+        )}
       </button>
 
       <p className="text-center text-sm text-gray-600">
@@ -102,12 +155,19 @@ function Login({ onLogin, onSwitchToRegister }) {
         </button>
       </p>
       <p className="text-center text-sm mt-2">
-        <button type="button" onClick={() => setIsRecoverOpen(true)} className="text-sm text-green-600 hover:text-green-800 underline">
+        <button
+          type="button"
+          onClick={() => setIsRecoverOpen(true)}
+          className="text-sm text-green-600 hover:text-green-800 underline"
+        >
           ¿Olvidaste tu contraseña?
         </button>
       </p>
 
-      <RecoverPassword isOpen={isRecoverOpen} onClose={() => setIsRecoverOpen(false)} />
+      <RecoverPassword
+        isOpen={isRecoverOpen}
+        onClose={() => setIsRecoverOpen(false)}
+      />
     </form>
   );
 }

@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import usersData from "../data/users.json";
-import matchesData from "../data/matches.json";
+import { authService } from "../services/authService";
 
 const AuthContext = createContext();
 
@@ -13,83 +12,82 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!localStorage.getItem("allUsers")) {
-      localStorage.setItem("allUsers", JSON.stringify(usersData));
-    }
-    if (!localStorage.getItem("matches")) {
-      localStorage.setItem("matches", JSON.stringify(matchesData));
-    }
-
-    const storedUser = localStorage.getItem("userLogged");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-    setLoading(false);
+    checkAuth();
   }, []);
 
-  const login = (email, password) => {
-    const allUsers = JSON.parse(localStorage.getItem("allUsers") || "[]");
-    const user = allUsers.find(
-      (u) => u.email === email && u.password === password
-    );
-
-    if (user) {
-      const { password: _, ...safeUser } = user;
-      setUser(safeUser);
-      localStorage.setItem("userLogged", JSON.stringify(safeUser));
-      return true;
+  const checkAuth = async () => {
+    try {
+      const userProfile = await authService.getProfile();
+      setUser(userProfile);
+    } catch (error) {
+      console.log("No hay sesión activa:", error.message);
+      setUser(null);
+    } finally {
+      setLoading(false);
     }
-    return false;
   };
 
-  const register = (name, email, password) => {
-    const allUsers = JSON.parse(localStorage.getItem("allUsers") || "[]");
-
-    if (allUsers.find((u) => u.email === email)) {
-      alert("❌ El usuario ya existe");
-      return false;
+  const refreshUser = async () => {
+    try {
+      const userProfile = await authService.refreshUserData();
+      setUser(userProfile);
+      return userProfile;
+    } catch (error) {
+      console.error("Error al refrescar usuario:", error);
+      return null;
     }
-
-    const newUser = {
-      id: Date.now(),
-      email,
-      password,
-      team_name: "Sin equipo",
-      team_shield:
-        "https://via.placeholder.com/150/007e33/ffffff?text=SIN+EQUIPO",
-    };
-
-    allUsers.push(newUser);
-    localStorage.setItem("allUsers", JSON.stringify(allUsers));
-
-    const { password: _, ...safeUser } = newUser;
-    setUser(safeUser);
-    localStorage.setItem("userLogged", JSON.stringify(safeUser));
-    return true;
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem("userLogged");
+  const login = async (email, password) => {
+    try {
+      const userData = await authService.login(email, password);
+      setUser(userData);
+      return { success: true, data: userData };
+    } catch (error) {
+      return { success: false, message: error.message };
+    }
   };
 
-  const updateUserTeam = (teamName, teamShield) => {
-    const allUsers = JSON.parse(localStorage.getItem("allUsers") || "[]");
-    const updatedUsers = allUsers.map((u) =>
-      u.id === user.id
-        ? { ...u, team_name: teamName, team_shield: teamShield }
-        : u
-    );
+  const register = async (nombre, apellido, email, password) => {
+    try {
+      const userData = {
+        nombre,
+        apellido,
+        email,
+        password,
+      };
 
-    localStorage.setItem("allUsers", JSON.stringify(updatedUsers));
+      await authService.register(userData);
 
-    const updatedUser = {
-      ...user,
-      team_name: teamName,
-      team_shield: teamShield,
-    };
-    setUser(updatedUser);
-    localStorage.setItem("userLogged", JSON.stringify(updatedUser));
+      const loginResult = await login(email, password);
+      return loginResult;
+    } catch (error) {
+      return { success: false, message: error.message };
+    }
+  };
+
+  const logout = async () => {
+    try {
+      await authService.logout();
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+    } finally {
+      setUser(null);
+    }
+  };
+
+  const updateUserTeam = (teamId, teamName, playerCount = 1) => {
+    setUser((prev) => ({
+      ...prev,
+      equipoId: teamId,
+      equipo: teamName
+        ? {
+            id: teamId,
+            nombre: teamName,
+            cantidad_jugadores: playerCount,
+          }
+        : null,
+    }));
   };
 
   const value = {
@@ -98,11 +96,9 @@ export function AuthProvider({ children }) {
     register,
     logout,
     updateUserTeam,
+    refreshUser,
+    loading,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {!loading && children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
