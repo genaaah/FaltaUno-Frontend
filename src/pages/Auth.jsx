@@ -10,18 +10,25 @@ function Auth() {
   const { login, register } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogin = (email, password) => {
-    if (login(email, password)) {
+  const handleLogin = async (email, password) => {
+    const result = await login(email, password);
+    if (result.success) {
       navigate("/");
-    } else {
-      alert("❌ Usuario o contraseña incorrectos");
     }
+    return result;
   };
 
-  const handleRegister = (name, email, password) => {
-    if (register(name, email, password)) {
+  const handleRegister = async (formData) => {
+    const result = await register(
+      formData.nombre,
+      formData.apellido,
+      formData.email,
+      formData.password
+    );
+    if (result.success) {
       navigate("/");
     }
+    return result;
   };
 
   return (

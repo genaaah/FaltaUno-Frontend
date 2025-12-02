@@ -82,7 +82,6 @@ function Game() {
         onCreate={handleCreateMatch}
       />
 
-      {/* Calendar Modal */}
       {isCalendarModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 overflow-auto">
           <div className="bg-white rounded-2xl p-8 w-full max-w-2xl my-8 relative">
@@ -98,7 +97,6 @@ function Game() {
             </h2>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Calendar */}
               <div>
                 <Calendar
                   onDateSelect={setSelectedCalendarDate}
@@ -106,11 +104,11 @@ function Game() {
                   compact={false}
                 />
               </div>
-
-              {/* Matches for selected date */}
               <div className="space-y-4">
                 <h3 className="text-lg font-bold text-green-600">
-                  {selectedCalendarDate ? "Partidos en esta fecha" : "Próximos partidos"}
+                  {selectedCalendarDate
+                    ? "Partidos en esta fecha"
+                    : "Próximos partidos"}
                 </h3>
 
                 {selectedCalendarDate && (
@@ -124,14 +122,20 @@ function Game() {
 
                 <div className="space-y-3 max-h-96 overflow-y-auto">
                   {(selectedCalendarDate
-                    ? matches.filter((match) => match.fecha === selectedCalendarDate)
+                    ? matches.filter(
+                        (match) => match.fecha === selectedCalendarDate
+                      )
                     : matches
                   ).length > 0 ? (
                     (selectedCalendarDate
-                      ? matches.filter((match) => match.fecha === selectedCalendarDate)
+                      ? matches.filter(
+                          (match) => match.fecha === selectedCalendarDate
+                        )
                       : matches
                     ).map((match) => {
-                      const localTeam = allUsers.find((u) => u.id === match.idEquipoLocal);
+                      const localTeam = allUsers.find(
+                        (u) => u.id === match.idEquipoLocal
+                      );
                       const visitingTeam = allUsers.find(
                         (u) => u.id === match.idEquipoVisitante
                       );
@@ -141,7 +145,9 @@ function Game() {
                           key={match.id}
                           className="border-l-4 border-green-600 bg-gradient-to-r from-green-50 to-white p-4 rounded-lg hover:shadow-md transition-shadow"
                         >
-                          <p className="font-bold text-green-700 text-sm">{match.cancha}</p>
+                          <p className="font-bold text-green-700 text-sm">
+                            {match.cancha}
+                          </p>
                           <p className="text-xs text-gray-600 mb-2">
                             {match.fecha} • {match.hora}:00 HS
                           </p>

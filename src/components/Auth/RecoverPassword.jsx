@@ -22,7 +22,6 @@ function RecoverPassword({ isOpen, onClose }) {
     setError(err);
     if (err) return;
 
-    // Simulate sending reset email
     console.log("Solicitar recuperación de contraseña para:", email);
     setSubmitted(true);
 
@@ -48,15 +47,27 @@ function RecoverPassword({ isOpen, onClose }) {
         {submitted ? (
           <div className="text-center py-8 sm:py-12">
             <div className="mb-4 text-3xl sm:text-4xl text-green-600">✓</div>
-            <h3 className="text-lg sm:text-xl font-bold text-green-600 mb-2">Correo enviado</h3>
-            <p className="text-sm sm:text-base text-gray-600">Revisá tu bandeja de entrada para seguir los pasos para recuperar tu contraseña.</p>
+            <h3 className="text-lg sm:text-xl font-bold text-green-600 mb-2">
+              Correo enviado
+            </h3>
+            <p className="text-sm sm:text-base text-gray-600">
+              Revisá tu bandeja de entrada para seguir los pasos para recuperar
+              tu contraseña.
+            </p>
           </div>
         ) : (
           <>
-            <h2 className="text-xl sm:text-2xl font-bold text-green-600 mb-4 text-center">Recuperar contraseña</h2>
+            <h2 className="text-xl sm:text-2xl font-bold text-green-600 mb-4 text-center">
+              Recuperar contraseña
+            </h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label htmlFor="recover-email" className="block text-sm font-medium text-gray-700 mb-2">Email asociado</label>
+                <label
+                  htmlFor="recover-email"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Email asociado
+                </label>
                 <input
                   id="recover-email"
                   name="email"
@@ -64,14 +75,20 @@ function RecoverPassword({ isOpen, onClose }) {
                   value={email}
                   onChange={handleChange}
                   placeholder="tu@email.com"
-                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent ${error ? 'border-red-400' : 'border-gray-300'}`}
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent ${
+                    error ? "border-red-400" : "border-gray-300"
+                  }`}
                   aria-invalid={error ? "true" : "false"}
                   required
                 />
                 {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
               </div>
 
-              <button type="submit" className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors" disabled={Boolean(error) || !email}>
+              <button
+                type="submit"
+                className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors"
+                disabled={Boolean(error) || !email}
+              >
                 Enviar instrucciones
               </button>
             </form>
