@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useMatches } from "../hooks/useMatches";
+import { userSearchService } from "../services/userSearchService";
 import CreateMatchModal from "../components/Game/CreateMatchModal";
 import MatchGrid from "../components/Game/MatchGrid";
 import Calendar from "../components/Calendar/Calendar";
@@ -32,7 +33,7 @@ function Game() {
   };
 
   const handleJoinMatch = (matchId) => {
-    joinMatch(matchId, user.id);
+    joinMatch(matchId);
   };
 
   const handleLeaveMatch = (matchId) => {
