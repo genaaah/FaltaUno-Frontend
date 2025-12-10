@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { invitationService } from "../../services/invitationService";
-import { teamService } from "../../services/teamService";
 import InvitationCard from "./InvitationCard";
+import { sweetAlert } from "../../utils/sweetAlert";
 
 function InvitationList() {
-  const { user, updateUserTeam, refreshUser } = useAuth();
+  const { user, refreshUser } = useAuth();
   const [invitations, setInvitations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -20,20 +20,11 @@ function InvitationList() {
     setError("");
     try {
       const data = await invitationService.getInvitations();
-
-      if (Array.isArray(data)) {
-        setInvitations(data);
-      } else if (data && Array.isArray(data.data)) {
-        setInvitations(data.data);
-      } else {
-        setInvitations([]);
-      }
+      setInvitations(Array.isArray(data) ? data : []);
     } catch (error) {
-      if (
-        error.message !== "Error al obtener invitaciones" &&
-        !error.message.includes("No se encontraron invitaciones")
-      ) {
-        setError(error.message);
+      // Error silencioso para 404 (no hay invitaciones)
+      if (!error.message.includes("No se encontraron")) {
+        setError(error.userMessage || "Error al cargar");
       }
       setInvitations([]);
     } finally {
@@ -42,56 +33,62 @@ function InvitationList() {
   };
 
   const handleAccept = async (invitationId) => {
-    if (
-      !window.confirm(
-        "¿Estás seguro de que quieres unirte a este equipo? Al aceptar, rechazarás automáticamente otras invitaciones pendientes."
-      )
-    ) {
+    const invitation = invitations.find(inv => inv.id === invitationId);
+    
+    const result = await sweetAlert.confirm(
+      "¿Unirse al equipo?",
+      `¿Unirte a "${invitation?.equipo?.nombre}"?\n\nOtras invitaciones se rechazarán.`,
+      "Unirse",
+      "Cancelar"
+    );
+
+    if (!result.isConfirmed) {
       return;
     }
 
     setActionLoading(invitationId);
     try {
       await invitationService.acceptInvitation(invitationId);
+      await refreshUser();
 
-      const updatedUser = await refreshUser();
-
-      if (updatedUser) {
-        const acceptedInvitation = invitations.find(
-          (inv) => inv.id === invitationId
-        );
-        if (acceptedInvitation) {
-          alert(
-            `¡Te has unido a ${acceptedInvitation.equipo.nombre} exitosamente!`
-          );
-        }
-      }
+      await sweetAlert.success(
+        "¡Te has unido!",
+        `Ahora eres parte de "${invitation?.equipo?.nombre}"`
+      );
 
       await fetchInvitations();
-
-      setTimeout(() => {
-        window.location.reload();
-      }, 1500);
+      setTimeout(() => window.location.reload(), 1000);
     } catch (error) {
-      alert(error.message);
+      await sweetAlert.error(
+        "Error",
+        error.userMessage || "No se pudo aceptar"
+      );
     } finally {
       setActionLoading(false);
     }
   };
 
   const handleReject = async (invitationId) => {
-    if (
-      !window.confirm("¿Estás seguro de que quieres rechazar esta invitación?")
-    ) {
+    const invitation = invitations.find(inv => inv.id === invitationId);
+    
+    const result = await sweetAlert.confirm(
+      "¿Rechazar invitación?",
+      `¿Rechazar invitación de ${invitation?.creador?.nombre}?`,
+      "Rechazar",
+      "Cancelar"
+    );
+
+    if (!result.isConfirmed) {
       return;
     }
 
     setActionLoading(invitationId);
     try {
       await invitationService.rejectInvitation(invitationId);
+      await sweetAlert.success("Invitación rechazada");
       await fetchInvitations();
     } catch (error) {
-      alert(error.message);
+      await sweetAlert.error("Error", error.userMessage || "No se pudo rechazar");
     } finally {
       setActionLoading(false);
     }
@@ -110,9 +107,7 @@ function InvitationList() {
     <div className="max-w-4xl mx-auto">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-800">Invitaciones</h1>
-        <p className="text-gray-600 mt-2">
-          Gestiona las invitaciones para unirte a equipos
-        </p>
+        <p className="text-gray-600 mt-2">Gestiona las invitaciones para unirte a equipos</p>
       </div>
 
       {error && (
@@ -137,27 +132,22 @@ function InvitationList() {
             />
           </svg>
           <h3 className="text-xl font-semibold text-gray-700 mb-2">
-            No tienes invitaciones pendientes
+            No hay invitaciones
           </h3>
           <p className="text-gray-500 max-w-md mx-auto">
-            Cuando un capitán te invite a unirte a su equipo, aparecerá aquí.
-            Asegúrate de tener tu perfil visible.
+            Tu perfil debe estar visible para recibir invitaciones.
           </p>
         </div>
       ) : (
         <>
           <div className="mb-4 flex items-center justify-between">
             <p className="text-gray-600">
-              Tienes{" "}
-              <span className="font-bold text-green-600">
-                {invitations.length}
-              </span>{" "}
-              invitación{invitations.length !== 1 ? "es" : ""} pendiente
-              {invitations.length !== 1 ? "s" : ""}
+              Tienes <span className="font-bold text-green-600">{invitations.length}</span> invitación{invitations.length !== 1 ? "es" : ""}
             </p>
             <button
               onClick={fetchInvitations}
-              className="text-green-600 hover:text-green-800 font-semibold flex items-center gap-2"
+              disabled={actionLoading}
+              className="text-green-600 hover:text-green-800 font-semibold flex items-center gap-2 disabled:opacity-50"
             >
               <svg
                 className="w-4 h-4"
@@ -204,14 +194,11 @@ function InvitationList() {
                 />
               </svg>
               <div>
-                <h4 className="font-semibold text-blue-800">Importante</h4>
+                <h4 className="font-semibold text-blue-800">Información</h4>
                 <p className="text-blue-600 text-sm mt-1">
-                  • Al aceptar una invitación, automáticamente rechazarás todas
-                  las otras invitaciones pendientes.
-                  <br />
-                  • Solo puedes pertenecer a un equipo a la vez.
-                  <br />• Tu perfil se ocultará automáticamente al unirte a un
-                  equipo.
+                  • Solo puedes estar en un equipo<br/>
+                  • Al aceptar, otras invitaciones se rechazan<br/>
+                  • Tu perfil se oculta al unirte a un equipo
                 </p>
               </div>
             </div>

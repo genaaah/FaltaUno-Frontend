@@ -1,202 +1,154 @@
 import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { useMatches } from "../hooks/useMatches";
-import CreateMatchModal from "../components/Game/CreateMatchModal";
-import MatchGrid from "../components/Game/MatchGrid";
-import Calendar from "../components/Calendar/Calendar";
+import MatchList from "../components/Matches/MatchList";
 
 function Game() {
   const { user } = useAuth();
-  const { matches, createMatch, deleteMatch, joinMatch, leaveMatch } =
-    useMatches();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false);
-  const [selectedCalendarDate, setSelectedCalendarDate] = useState(null);
+  const [activeTab, setActiveTab] = useState("all");
 
-  const allUsers = JSON.parse(localStorage.getItem("allUsers") || "[]");
-
-  const handleCreateMatch = (newMatch) => {
-    const exists = matches.some(
-      (match) =>
-        match.cancha === newMatch.cancha &&
-        match.fecha === newMatch.fecha &&
-        match.hora === newMatch.hora
-    );
-
-    if (exists) {
-      alert("Ya hay un partido en esa cancha, fecha y hora.");
-      return;
-    }
-
-    createMatch(newMatch);
-  };
-
-  const handleJoinMatch = (matchId) => {
-    joinMatch(matchId, user.id);
-  };
-
-  const handleLeaveMatch = (matchId) => {
-    leaveMatch(matchId);
-  };
-
-  const handleDeleteMatch = (matchId) => {
-    if (window.confirm("¿Estás seguro de que querés eliminar este partido?")) {
-      deleteMatch(matchId);
-    }
-  };
+  const isCaptain = user?.rol === "capitan";
 
   return (
-    <div className="flex-1 p-8 overflow-auto bg-green-50">
-      <div className="flex justify-center gap-4 mb-8 flex-wrap">
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="bg-green-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-green-700 transition-colors"
-        >
-          CREAR PARTIDO
-        </button>
-        <button
-          onClick={() => alert("Próximamente...")}
-          className="bg-green-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-green-700 transition-colors"
-        >
-          COMPLETAR PARTIDO
-        </button>
-        <button
-          onClick={() => setIsCalendarModalOpen(true)}
-          className="bg-green-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-green-700 transition-colors"
-        >
-          VER CALENDARIO
-        </button>
-      </div>
-
-      <MatchGrid
-        matches={matches}
-        users={allUsers}
-        onDelete={handleDeleteMatch}
-        onJoin={handleJoinMatch}
-        onLeave={handleLeaveMatch}
-      />
-
-      <CreateMatchModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onCreate={handleCreateMatch}
-      />
-
-      {isCalendarModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 overflow-auto">
-          <div className="bg-white rounded-2xl p-8 w-full max-w-2xl my-8 relative">
+    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-6xl mx-auto">
+          <div className="mb-8 text-center">
+            <h1 className="text-4xl font-bold text-gray-800 mb-3">Partidos</h1>
+            <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+              Encuentra partidos para unirte, gestiona los de tu equipo o crea
+              nuevos encuentros.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2 justify-center mb-8">
             <button
-              onClick={() => setIsCalendarModalOpen(false)}
-              className="absolute top-4 right-4 text-2xl text-gray-500 hover:text-gray-700 z-10"
+              onClick={() => setActiveTab("all")}
+              className={`px-6 py-3 rounded-lg font-semibold transition-colors ${
+                activeTab === "all"
+                  ? "bg-green-600 text-white shadow-lg"
+                  : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+              }`}
             >
-              &times;
-            </button>
-
-            <h2 className="text-2xl font-bold text-green-600 mb-6 text-center">
-              Calendario de Partidos
-            </h2>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div>
-                <Calendar
-                  onDateSelect={setSelectedCalendarDate}
-                  selectedDate={selectedCalendarDate}
-                  compact={false}
-                />
+              <div className="flex items-center gap-2">
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                  />
+                </svg>
+                Todos los Partidos
               </div>
-              <div className="space-y-4">
-                <h3 className="text-lg font-bold text-green-600">
-                  {selectedCalendarDate
-                    ? "Partidos en esta fecha"
-                    : "Próximos partidos"}
-                </h3>
-
-                {selectedCalendarDate && (
-                  <button
-                    onClick={() => setSelectedCalendarDate(null)}
-                    className="w-full mb-4 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-300 transition-colors"
+            </button>
+            <button
+              onClick={() => setActiveTab("my")}
+              className={`px-6 py-3 rounded-lg font-semibold transition-colors ${
+                activeTab === "my"
+                  ? "bg-blue-600 text-white shadow-lg"
+                  : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                  />
+                </svg>
+                Mis Partidos
+              </div>
+            </button>
+            {isCaptain && (
+              <button
+                onClick={() => setActiveTab("create")}
+                className={`px-6 py-3 rounded-lg font-semibold transition-colors ${
+                  activeTab === "create"
+                    ? "bg-green-700 text-white shadow-lg"
+                    : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
                   >
-                    Limpiar filtro
-                  </button>
-                )}
-
-                <div className="space-y-3 max-h-96 overflow-y-auto">
-                  {(selectedCalendarDate
-                    ? matches.filter(
-                        (match) => match.fecha === selectedCalendarDate
-                      )
-                    : matches
-                  ).length > 0 ? (
-                    (selectedCalendarDate
-                      ? matches.filter(
-                          (match) => match.fecha === selectedCalendarDate
-                        )
-                      : matches
-                    ).map((match) => {
-                      const localTeam = allUsers.find(
-                        (u) => u.id === match.idEquipoLocal
-                      );
-                      const visitingTeam = allUsers.find(
-                        (u) => u.id === match.idEquipoVisitante
-                      );
-
-                      return (
-                        <div
-                          key={match.id}
-                          className="border-l-4 border-green-600 bg-gradient-to-r from-green-50 to-white p-4 rounded-lg hover:shadow-md transition-shadow"
-                        >
-                          <p className="font-bold text-green-700 text-sm">
-                            {match.cancha}
-                          </p>
-                          <p className="text-xs text-gray-600 mb-2">
-                            {match.fecha} • {match.hora}:00 HS
-                          </p>
-
-                          <div className="flex items-center gap-2 mb-2">
-                            <img
-                              src={localTeam?.team_shield}
-                              alt="Local"
-                              className="w-6 h-6 object-contain"
-                            />
-                            <span className="text-xs font-semibold text-gray-800 flex-1">
-                              {localTeam?.team_name}
-                            </span>
-                          </div>
-
-                          {visitingTeam ? (
-                            <div className="flex items-center gap-2">
-                              <img
-                                src={visitingTeam?.team_shield}
-                                alt="Visitante"
-                                className="w-6 h-6 object-contain"
-                              />
-                              <span className="text-xs font-semibold text-gray-800 flex-1">
-                                {visitingTeam?.team_name}
-                              </span>
-                            </div>
-                          ) : (
-                            <p className="text-xs text-green-600 font-semibold">
-                              Esperando oponente...
-                            </p>
-                          )}
-                        </div>
-                      );
-                    })
-                  ) : (
-                    <div className="text-center py-8">
-                      <p className="text-gray-500 text-sm">
-                        {selectedCalendarDate
-                          ? "No hay partidos en esta fecha"
-                          : "No hay partidos próximos"}
-                      </p>
-                    </div>
-                  )}
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 4v16m8-8H4"
+                    />
+                  </svg>
+                  Crear Partido
+                </div>
+              </button>
+            )}
+          </div>
+          <div className="mb-8">
+            <div className="bg-white rounded-xl shadow-lg p-6">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
+                    {user?.equipo?.nombre?.charAt(0)?.toUpperCase() || "?"}
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-800">
+                      {user?.equipo?.nombre || "Sin equipo"}
+                    </h3>
+                    <p className="text-gray-600">
+                      {isCaptain
+                        ? "Capitán - Puedes crear partidos"
+                        : "Jugador - Puedes unirte a partidos"}
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-2xl font-bold text-gray-800">
+                    {user?.equipo?.cantidad_jugadores || 1}/5
+                  </div>
+                  <div className="text-gray-600">Jugadores en equipo</div>
+                  <div className="w-48 bg-gray-200 rounded-full h-2 mt-2">
+                    <div
+                      className="bg-green-500 h-2 rounded-full"
+                      style={{
+                        width: `${Math.min(
+                          ((user?.equipo?.cantidad_jugadores || 1) / 5) * 100,
+                          100
+                        )}%`,
+                      }}
+                    ></div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
+          <div className="mt-8">
+            {activeTab === "all" && <MatchList isMyMatches={false} />}
+
+            {activeTab === "my" && <MatchList isMyMatches={true} />}
+
+            {activeTab === "create" && isCaptain && (
+              <div className="bg-white rounded-xl shadow-lg p-8">
+                <MatchList isMyMatches={false} />
+              </div>
+            )}
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }

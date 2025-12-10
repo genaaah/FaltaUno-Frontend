@@ -10,20 +10,37 @@ export function useAuth() {
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(false);
 
   useEffect(() => {
     checkAuth();
   }, []);
 
   const checkAuth = async () => {
+    if (isCheckingAuth) return;
+
+    setIsCheckingAuth(true);
+
     try {
+      console.log("🔍 Verificando sesión...");
       const userProfile = await authService.getProfile();
+      console.log("✅ Usuario autenticado:", userProfile.email);
       setUser(userProfile);
     } catch (error) {
-      console.log("No hay sesión activa:", error.message);
+      console.log("👤 No hay sesión activa o expiró");
       setUser(null);
+
+      if (
+        error.message.includes("Sesión expirada") &&
+        document.cookie.includes("accessToken")
+      ) {
+        console.log("🔄 Limpiando cookie expirada...");
+        document.cookie =
+          "accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+      }
     } finally {
       setLoading(false);
+      setIsCheckingAuth(false);
     }
   };
 
@@ -48,20 +65,30 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const register = async (nombre, apellido, email, password) => {
+  const register = async (nombre, apellido, email, documento, password) => {
     try {
+      console.log("📤 Datos enviados al registro:", {
+        nombre,
+        apellido,
+        email,
+        documento,
+        passwordLength: password.length,
+      });
+
       const userData = {
         nombre,
         apellido,
         email,
+        documento,
         password,
       };
 
-      await authService.register(userData);
+      const result = await authService.register(userData);
 
-      const loginResult = await login(email, password);
-      return loginResult;
+      console.log("✅ Respuesta del registro:", result);
+      return result;
     } catch (error) {
+      console.error("❌ Error en registro:", error.message);
       return { success: false, message: error.message };
     }
   };
@@ -73,6 +100,8 @@ export function AuthProvider({ children }) {
       console.error("Error al cerrar sesión:", error);
     } finally {
       setUser(null);
+      document.cookie =
+        "accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
     }
   };
 
@@ -98,6 +127,7 @@ export function AuthProvider({ children }) {
     updateUserTeam,
     refreshUser,
     loading,
+    checkAuth,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

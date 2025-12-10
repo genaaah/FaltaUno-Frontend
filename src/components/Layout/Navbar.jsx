@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { invitationService } from "../../services/invitationService";
 import { userSearchService } from "../../services/userSearchService";
 import { teamService } from "../../services/teamService";
+import { sweetAlert } from "../../utils/sweetAlert";
 import logo from "../../assets/logo-falta1.png";
 import CreateTeamModal from "./CreateTeamModal";
 import SendInvitationModal from "../Invitations/SendInvitationModal";
@@ -458,7 +459,6 @@ function Navbar() {
                 {hasTeam ? "Gestionar Equipo" : "Crear Equipo"}
               </button>
             </div>
-
             <div className="bg-green-900/30 rounded-lg p-1">
               <button
                 onClick={() => {
@@ -499,7 +499,6 @@ function Navbar() {
                   : "Solo capitán"}
               </button>
             </div>
-
             {!hasTeam && invitationCount > 0 && (
               <div className="bg-yellow-900/20 rounded-lg p-1 animate-pulse">
                 <button
@@ -531,24 +530,42 @@ function Navbar() {
               <div className="bg-yellow-900/20 rounded-lg p-1">
                 <button
                   onClick={async () => {
-                    if (
-                      window.confirm(
-                        "¿Estás seguro de que quieres salir del equipo? Perderás tu historial en este equipo."
-                      )
-                    ) {
-                      try {
-                        const result = await userSearchService.leaveTeam();
-                        alert(
-                          result.message ||
-                            "Has salido del equipo correctamente"
-                        );
-                        await refreshUser();
-                        setTimeout(() => {
-                          window.location.reload();
-                        }, 1000);
-                      } catch (error) {
-                        alert(error.message || "Error al salir del equipo");
-                      }
+                    const result = await sweetAlert.confirm(
+                      "¿Salir del equipo?",
+                      `¿Estás seguro de que quieres salir del equipo "${user.equipo?.nombre}"?\n\n` +
+                        `⚠️  Al salir:\n` +
+                        `• Perderás acceso al historial del equipo\n` +
+                        `• Ya no podrás ver los partidos agendados\n` +
+                        `• Tu perfil será visible para recibir nuevas invitaciones\n\n` +
+                        `Esta acción no se puede deshacer fácilmente.`,
+                      "Sí, salir",
+                      "Cancelar"
+                    );
+
+                    if (!result.isConfirmed) {
+                      return;
+                    }
+
+                    try {
+                      const result = await userSearchService.leaveTeam();
+
+                      await sweetAlert.success(
+                        "Has salido del equipo",
+                        result.message ||
+                          "Ahora tu perfil está visible para recibir nuevas invitaciones."
+                      );
+
+                      await refreshUser();
+                      setTimeout(() => {
+                        window.location.reload();
+                      }, 1000);
+                    } catch (error) {
+                      await sweetAlert.error(
+                        "Error",
+                        error.userMessage ||
+                          error.message ||
+                          "Error al salir del equipo"
+                      );
                     }
                   }}
                   className="w-full bg-gradient-to-r from-yellow-600 to-yellow-500 text-white py-2.5 px-4 rounded-md font-semibold hover:from-yellow-500 hover:to-yellow-400 transition-all duration-200 text-sm flex items-center justify-center gap-2"

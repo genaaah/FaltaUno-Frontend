@@ -5,6 +5,7 @@ function Register({ onRegister, onSwitchToLogin }) {
     nombre: "",
     apellido: "",
     email: "",
+    documento: "",
     password: "",
     confirmPassword: "",
   });
@@ -12,6 +13,7 @@ function Register({ onRegister, onSwitchToLogin }) {
     nombre: "",
     apellido: "",
     email: "",
+    documento: "",
     password: "",
     confirmPassword: "",
   });
@@ -27,6 +29,19 @@ function Register({ onRegister, onSwitchToLogin }) {
     if (!email) return "El email es requerido.";
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return re.test(email) ? "" : "Ingresá un email válido.";
+  };
+
+  const validateDocumento = (documento) => {
+    if (!documento) return "El documento es requerido.";
+
+    if (!/^\d+$/.test(documento)) {
+      return "El documento solo puede contener números.";
+    }
+
+    const re = /^\d{8,10}$/;
+    return re.test(documento)
+      ? ""
+      : "Debe tener entre 8 y 10 dígitos numéricos.";
   };
 
   const validatePassword = (password) => {
@@ -52,9 +67,16 @@ function Register({ onRegister, onSwitchToLogin }) {
     e.preventDefault();
     setIsLoading(true);
 
+    console.log("📝 Datos del formulario antes de enviar:", {
+      ...formData,
+      password: "[PROTECTED]",
+      confirmPassword: "[PROTECTED]",
+    });
+
     const nombreError = validateName(formData.nombre, "nombre");
     const apellidoError = validateName(formData.apellido, "apellido");
     const emailError = validateEmail(formData.email);
+    const documentoError = validateDocumento(formData.documento);
     const passwordError = validatePassword(formData.password);
     const confirmError = validateConfirm(
       formData.confirmPassword,
@@ -65,6 +87,7 @@ function Register({ onRegister, onSwitchToLogin }) {
       nombre: nombreError,
       apellido: apellidoError,
       email: emailError,
+      documento: documentoError,
       password: passwordError,
       confirmPassword: confirmError,
     });
@@ -73,6 +96,7 @@ function Register({ onRegister, onSwitchToLogin }) {
       nombreError ||
       apellidoError ||
       emailError ||
+      documentoError ||
       passwordError ||
       confirmError
     ) {
@@ -84,6 +108,7 @@ function Register({ onRegister, onSwitchToLogin }) {
       nombre: formData.nombre,
       apellido: formData.apellido,
       email: formData.email,
+      documento: formData.documento,
       password: formData.password,
     });
 
@@ -96,17 +121,34 @@ function Register({ onRegister, onSwitchToLogin }) {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    if (name === "documento") {
+      const numericValue = value.replace(/\D/g, "");
+
+      const limitedValue = numericValue.slice(0, 10);
+
+      setFormData((prev) => ({ ...prev, [name]: limitedValue }));
+      setErrors((prev) => ({
+        ...prev,
+        [name]: validateDocumento(limitedValue),
+      }));
+      return;
+    }
+
     setFormData((prev) => ({ ...prev, [name]: value }));
 
-    if (name === "nombre")
+    if (name === "nombre") {
       setErrors((prev) => ({ ...prev, nombre: validateName(value, "nombre") }));
-    if (name === "apellido")
+    }
+    if (name === "apellido") {
       setErrors((prev) => ({
         ...prev,
         apellido: validateName(value, "apellido"),
       }));
-    if (name === "email")
+    }
+    if (name === "email") {
       setErrors((prev) => ({ ...prev, email: validateEmail(value) }));
+    }
     if (name === "password") {
       setErrors((prev) => ({
         ...prev,
@@ -114,11 +156,12 @@ function Register({ onRegister, onSwitchToLogin }) {
         confirmPassword: validateConfirm(formData.confirmPassword, value),
       }));
     }
-    if (name === "confirmPassword")
+    if (name === "confirmPassword") {
       setErrors((prev) => ({
         ...prev,
         confirmPassword: validateConfirm(value, formData.password),
       }));
+    }
   };
 
   return (
@@ -202,6 +245,33 @@ function Register({ onRegister, onSwitchToLogin }) {
 
       <div>
         <label
+          htmlFor="register-documento"
+          className="block text-sm font-medium text-gray-700 mb-2"
+        >
+          Documento
+        </label>
+        <input
+          type="text"
+          id="register-documento"
+          name="documento"
+          value={formData.documento}
+          onChange={handleChange}
+          placeholder="12345678"
+          maxLength={10}
+          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent ${
+            errors.documento ? "border-red-400" : "border-gray-300"
+          }`}
+          aria-invalid={errors.documento ? "true" : "false"}
+          required
+        />
+        {errors.documento && (
+          <p className="text-red-500 text-xs mt-1">{errors.documento}</p>
+        )}
+        <p className="text-xs text-gray-500 mt-1">8-10 dígitos numéricos</p>
+      </div>
+
+      <div>
+        <label
           htmlFor="register-password"
           className="block text-sm font-medium text-gray-700 mb-2"
         >
@@ -263,12 +333,14 @@ function Register({ onRegister, onSwitchToLogin }) {
             errors.nombre ||
               errors.apellido ||
               errors.email ||
+              errors.documento ||
               errors.password ||
               errors.confirmPassword
           ) ||
           !formData.nombre ||
           !formData.apellido ||
           !formData.email ||
+          !formData.documento ||
           !formData.password ||
           !formData.confirmPassword
         }
