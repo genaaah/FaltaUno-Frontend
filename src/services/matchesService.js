@@ -1,7 +1,6 @@
 import api from "./api";
 
 export const matchesService = {
-  // Crear partido
   async createMatch(matchData) {
     try {
       console.log("🎯 MatchesService: Creando partido...", matchData);
@@ -34,36 +33,33 @@ export const matchesService = {
     }
   },
 
-  // Obtener todos los partidos
   async getAllMatches() {
     try {
       console.log("🔍 MatchesService: Obteniendo todos los partidos...");
       const response = await api.get("/matches");
-      
-      // DEBUG: Ver la estructura real
+
       if (response.data?.[0]) {
         console.log("🔍 DEBUG - Estructura del primer partido:", {
           equipos: response.data[0].equipos,
           cancha: response.data[0].cancha,
-          estado_resultado: response.data[0].estado_resultado
+          estado_resultado: response.data[0].estado_resultado,
         });
       }
-      
+
       console.log("✅ Partidos obtenidos:", response.data?.length || 0);
       return response.data || [];
     } catch (error) {
       console.error("❌ Error al obtener partidos:", error.message);
-      
+
       if (error.response?.status === 404) {
         console.log("📭 No hay partidos disponibles");
         return [];
       }
-      
+
       return [];
     }
   },
 
-  // Obtener mis partidos
   async getMyMatches() {
     try {
       console.log("🔍 MatchesService: Obteniendo mis partidos...");
@@ -72,17 +68,16 @@ export const matchesService = {
       return response.data || [];
     } catch (error) {
       console.error("❌ Error al obtener mis partidos:", error.message);
-      
+
       if (error.response?.status === 404) {
         console.log("📭 No tienes partidos programados");
         return [];
       }
-      
+
       return [];
     }
   },
 
-  // Obtener partido por ID
   async getMatchById(id) {
     try {
       console.log(`🔍 MatchesService: Obteniendo partido ID ${id}...`);
@@ -97,10 +92,12 @@ export const matchesService = {
     }
   },
 
-  // Actualizar partido
   async updateMatch(id, matchData) {
     try {
-      console.log(`🔄 MatchesService: Actualizando partido ID ${id}...`, matchData);
+      console.log(
+        `🔄 MatchesService: Actualizando partido ID ${id}...`,
+        matchData
+      );
       const response = await api.put(`/matches/${id}`, matchData);
       console.log("✅ Partido actualizado:", response.data);
       return response.data;
@@ -112,7 +109,6 @@ export const matchesService = {
     }
   },
 
-  // Eliminar partido
   async deleteMatch(id) {
     try {
       console.log(`🗑️ MatchesService: Eliminando partido ID ${id}...`);
@@ -127,7 +123,6 @@ export const matchesService = {
     }
   },
 
-  // Unirse a partido
   async joinMatch(id) {
     try {
       console.log(`🤝 MatchesService: Uniéndose al partido ID ${id}...`);
@@ -142,7 +137,6 @@ export const matchesService = {
     }
   },
 
-  // Salir de partido
   async leaveMatch(id) {
     try {
       console.log(`🚪 MatchesService: Saliendo del partido ID ${id}...`);
@@ -150,17 +144,45 @@ export const matchesService = {
       console.log("✅ Salido del partido:", response.data);
       return response.data;
     } catch (error) {
-      console.error("❌ Error al salir del partido:", error.message);
-      throw new Error(
-        error.response?.data?.message || "Error al salir del partido"
-      );
+      console.error("❌ Error al salir del partido:", {
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.message,
+      });
+
+      let errorMessage = "Error al salir del partido";
+
+      if (error.response?.status === 400) {
+        const backendMessage = error.response.data?.message || "";
+        if (
+          backendMessage.includes(
+            "No puedes salir del partido si no tenes rival"
+          )
+        ) {
+          errorMessage =
+            "No puedes abandonar el partido si no tienes rival. En su lugar, elimina el partido.";
+        } else if (
+          backendMessage.includes("Hubo un error al salir del partido")
+        ) {
+          errorMessage =
+            "Ocurrió un error al intentar salir del partido. Intenta nuevamente.";
+        }
+      } else if (error.response?.status === 401) {
+        errorMessage = "No tienes permisos para realizar esta acción";
+      } else if (error.response?.status === 403) {
+        errorMessage = "Solo los capitanes pueden abandonar el partido";
+      }
+
+      throw new Error(errorMessage);
     }
   },
 
-  // Cargar resultado
   async updateResult(id, resultData) {
     try {
-      console.log(`📊 MatchesService: Actualizando resultado ID ${id}...`, resultData);
+      console.log(
+        `📊 MatchesService: Actualizando resultado ID ${id}...`,
+        resultData
+      );
       const response = await api.put(`/matches/result/${id}`, resultData);
       console.log("✅ Resultado actualizado:", response.data);
       return response.data;
@@ -172,7 +194,6 @@ export const matchesService = {
     }
   },
 
-  // Confirmar resultado
   async confirmResult(id) {
     try {
       console.log(`✅ MatchesService: Confirmando resultado ID ${id}...`);
@@ -187,7 +208,6 @@ export const matchesService = {
     }
   },
 
-  // Rechazar resultado
   async rejectResult(id) {
     try {
       console.log(`❌ MatchesService: Rechazando resultado ID ${id}...`);
@@ -202,79 +222,77 @@ export const matchesService = {
     }
   },
 
-  // Transformar datos para mostrar - CORREGIDO
   transformMatchData(match) {
     console.log("🔄 Transformando datos del partido:", match.id);
-    
+
     const date = match.hora_dia ? new Date(match.hora_dia) : null;
 
     console.log("🔍 Equipos del partido:", match.equipos);
-    
-    // Encontrar equipos local y visitante
-    const localTeam = match.equipos?.find(team => team.equipo?.es_local);
-    const visitorTeam = match.equipos?.find(team => !team.equipo?.es_local);
-    
-    // Log para debugging
+
+    const localTeam = match.equipos?.find((team) => team.equipo?.es_local);
+    const visitorTeam = match.equipos?.find((team) => !team.equipo?.es_local);
+
     console.log("🔍 Datos del equipo local:", {
       equipo: localTeam?.equipo,
-      creador: localTeam?.equipo?.creador
+      creador: localTeam?.equipo?.creador,
     });
-    
+
     console.log("🔍 Datos del equipo visitante:", {
       equipo: visitorTeam?.equipo,
-      creador: visitorTeam?.equipo?.creador
+      creador: visitorTeam?.equipo?.creador,
     });
-    
+
     return {
       id: match.id,
-      fecha: date ? date.toLocaleDateString('es-ES', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      }) : 'No definida',
-      hora: date ? date.toLocaleTimeString('es-ES', {
-        hour: '2-digit',
-        minute: '2-digit'
-      }) : '',
+      fecha: date
+        ? date.toLocaleDateString("es-ES", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })
+        : "No definida",
+      hora: date
+        ? date.toLocaleTimeString("es-ES", {
+            hour: "2-digit",
+            minute: "2-digit",
+          })
+        : "",
       fechaCompleta: date,
-      cancha: match.cancha?.nombre || 'No definida',
+      cancha: match.cancha?.nombre || "No definida",
       canchaId: match.cancha?.id,
       estado: match.estado_resultado,
-      
-      // Datos del equipo local - CORREGIDO
-      equipoLocal: localTeam?.equipo?.nombre || 'Disponible',
+
+      equipoLocal: localTeam?.equipo?.nombre || "Disponible",
       equipoLocalId: localTeam?.equipo?.id,
       golesLocal: localTeam?.goles_local,
       creadorLocalId: localTeam?.equipo?.creador?.id,
       creadorLocalNombre: localTeam?.equipo?.creador?.nombre,
       creadorLocalApellido: localTeam?.equipo?.creador?.apellido,
-      
-      // Datos del equipo visitante - CORREGIDO
-      equipoVisitante: visitorTeam?.equipo?.nombre || 'Disponible',
+
+      equipoVisitante: visitorTeam?.equipo?.nombre || "Disponible",
       equipoVisitanteId: visitorTeam?.equipo?.id,
       golesVisitante: visitorTeam?.goles_visitante,
       creadorVisitanteId: visitorTeam?.equipo?.creador?.id,
       creadorVisitanteNombre: visitorTeam?.equipo?.creador?.nombre,
       creadorVisitanteApellido: visitorTeam?.equipo?.creador?.apellido,
-      
-      // Información adicional
+
       equipos: match.equipos || [],
       creadoEn: match.creadoEn,
       actualizadoEn: match.actualizadoEn,
     };
   },
 
-  // Formatear para formulario
   formatForForm(match) {
     const date = match.hora_dia ? new Date(match.hora_dia) : null;
-    
+
     return {
-      hora_dia: date ? date.toISOString().slice(0, 16) : '',
+      hora_dia: date ? date.toISOString().slice(0, 16) : "",
       partido: {
-        canchaId: match.cancha?.id || '',
-        contrincante: match.equipos?.find(team => !team.es_local)?.equipo?.id || ''
-      }
+        canchaId: match.cancha?.id || "",
+        contrincante:
+          match.equipos?.find((team) => !team.es_local)?.equipo?.id || "",
+      },
     };
-  }
+  },
 };

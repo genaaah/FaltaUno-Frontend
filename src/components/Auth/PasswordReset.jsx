@@ -104,87 +104,105 @@ function PasswordReset() {
     }
   };
 
-  if (step === "loading") {
+  const LoadingSpinner = ({ size = "w-5 h-5", color = "text-white" }) => (
+    <svg
+      className={`animate-spin ${size} ${color}`}
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <circle
+        className="opacity-25"
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        strokeWidth="4"
+      ></circle>
+      <path
+        className="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+      ></path>
+    </svg>
+  );
+
+  const stepConfig = {
+    loading: {
+      icon: <LoadingSpinner size="w-8 h-8" color="text-blue-600" />,
+      title: "Verificando enlace...",
+      description: "Por favor espera.",
+      bgColor: "bg-blue-100",
+      textColor: "text-blue-600",
+    },
+    error: {
+      icon: (
+        <svg
+          className="w-8 h-8"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
+        </svg>
+      ),
+      title: "Enlace inválido",
+      description: "El enlace de recuperación no es válido o ha expirado.",
+      bgColor: "bg-red-100",
+      textColor: "text-red-600",
+    },
+  };
+
+  if (step === "loading" || step === "error") {
+    const config = stepConfig[step];
     return (
-      <div className="min-h-screen bg-green-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-md text-center">
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center p-4 sm:p-6">
+        <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 w-full max-w-md mx-auto text-center">
           <div className="mb-6">
-            <div className="w-16 h-16 mx-auto bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
-              <svg
-                className="w-8 h-8 animate-spin"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                ></circle>
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                ></path>
-              </svg>
+            <div
+              className={`w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full flex items-center justify-center ${config.bgColor} ${config.textColor}`}
+            >
+              {config.icon}
             </div>
           </div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">
-            Verificando enlace...
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-3 sm:mb-4">
+            {config.title}
           </h2>
-          <p className="text-gray-600">Por favor espera.</p>
+          <p className="text-gray-600 text-sm sm:text-base mb-6 sm:mb-8">
+            {config.description}
+          </p>
+          {step === "error" && (
+            <button
+              onClick={() => navigate("/auth")}
+              className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 px-4 rounded-lg font-semibold hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-md hover:shadow-lg"
+            >
+              Ir al inicio de sesión
+            </button>
+          )}
         </div>
       </div>
     );
   }
 
-  if (step === "error") {
-    return (
-      <div className="min-h-screen bg-green-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-md text-center">
-          <div className="mb-6">
-            <div className="w-16 h-16 mx-auto bg-red-100 rounded-full flex items-center justify-center text-red-600">
-              <svg
-                className="w-8 h-8"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-            </div>
-          </div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">
-            Enlace inválido
-          </h2>
-          <p className="text-gray-600 mb-6">
-            El enlace de recuperación no es válido o ha expirado.
-          </p>
-          <button
-            onClick={() => navigate("/auth")}
-            className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors"
-          >
-            Ir al inicio de sesión
-          </button>
-        </div>
-      </div>
-    );
-  }
+  const isSubmitDisabled =
+    isLoading ||
+    !newPassword ||
+    !confirmPassword ||
+    errors.newPassword ||
+    errors.confirmPassword;
 
   return (
-    <div className="min-h-screen bg-green-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-md">
-        <div className="mb-8 text-center">
-          <div className="w-16 h-16 mx-auto bg-green-100 rounded-full flex items-center justify-center text-green-600 mb-4">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center p-4 sm:p-6">
+      <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 w-full max-w-md mx-auto">
+        <div className="mb-6 sm:mb-8 text-center">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto bg-green-100 rounded-full flex items-center justify-center text-green-600 mb-4">
             <svg
-              className="w-8 h-8"
+              className="w-8 h-8 sm:w-10 sm:h-10"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -197,20 +215,19 @@ function PasswordReset() {
               />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2">
             Nueva Contraseña
           </h2>
-          <p className="text-gray-600">
+          <p className="text-gray-600 text-sm sm:text-base">
             Creá una nueva contraseña para tu cuenta.
           </p>
         </div>
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
+          <div className="space-y-4 sm:space-y-5">
             <div>
               <label
                 htmlFor="reset-new-password"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-sm font-medium text-gray-700 mb-1.5 sm:mb-2"
               >
                 Nueva contraseña
               </label>
@@ -230,9 +247,9 @@ function PasswordReset() {
                   });
                 }}
                 placeholder="********"
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent ${
+                className={`w-full px-4 py-2.5 sm:py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-sm sm:text-base ${
                   errors.newPassword ? "border-red-400" : "border-gray-300"
-                }`}
+                } ${isLoading ? "bg-gray-50 cursor-not-allowed" : ""}`}
                 disabled={isLoading}
                 required
               />
@@ -242,11 +259,10 @@ function PasswordReset() {
                 </p>
               )}
             </div>
-
             <div>
               <label
                 htmlFor="reset-confirm-password"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-sm font-medium text-gray-700 mb-1.5 sm:mb-2"
               >
                 Confirmar nueva contraseña
               </label>
@@ -265,9 +281,9 @@ function PasswordReset() {
                   });
                 }}
                 placeholder="********"
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent ${
+                className={`w-full px-4 py-2.5 sm:py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-sm sm:text-base ${
                   errors.confirmPassword ? "border-red-400" : "border-gray-300"
-                }`}
+                } ${isLoading ? "bg-gray-50 cursor-not-allowed" : ""}`}
                 disabled={isLoading}
                 required
               />
@@ -278,51 +294,24 @@ function PasswordReset() {
               )}
             </div>
           </div>
-
           <button
             type="submit"
-            disabled={
-              isLoading ||
-              !newPassword ||
-              !confirmPassword ||
-              errors.newPassword ||
-              errors.confirmPassword
-            }
-            className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center"
+            disabled={isSubmitDisabled}
+            className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-2.5 sm:py-3 rounded-lg font-semibold hover:from-green-700 hover:to-emerald-700 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:from-green-600 disabled:hover:to-emerald-600 flex items-center justify-center gap-2 shadow-md hover:shadow-lg active:scale-[0.98]"
           >
             {isLoading ? (
               <>
-                <svg
-                  className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
-                Cambiando...
+                <LoadingSpinner />
+                <span className="text-sm sm:text-base">Cambiando...</span>
               </>
             ) : (
-              "Cambiar contraseña"
+              <span className="text-sm sm:text-base">Cambiar contraseña</span>
             )}
           </button>
-
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-            <div className="flex items-start gap-2">
+          <div className="bg-green-50 border border-green-200 rounded-lg p-3 sm:p-4">
+            <div className="flex items-start gap-2 sm:gap-3">
               <svg
-                className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0"
+                className="w-4 h-4 sm:w-5 sm:h-5 text-green-500 mt-0.5 flex-shrink-0"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -334,18 +323,17 @@ function PasswordReset() {
                   d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
                 />
               </svg>
-              <p className="text-sm text-green-700">
+              <p className="text-xs sm:text-sm text-green-700 leading-relaxed">
                 La contraseña debe tener mínimo 8 caracteres, con mayúscula,
                 minúscula, número y carácter especial.
               </p>
             </div>
           </div>
-
-          <div className="text-center">
+          <div className="text-center pt-2">
             <button
               type="button"
               onClick={() => navigate("/auth")}
-              className="text-green-600 hover:text-green-800 font-semibold text-sm"
+              className="text-green-600 hover:text-green-800 font-semibold text-xs sm:text-sm transition-colors duration-200"
               disabled={isLoading}
             >
               Volver al inicio de sesión

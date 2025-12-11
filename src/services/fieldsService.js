@@ -1,7 +1,6 @@
 import api from "./api";
 
 export const fieldsService = {
-  // Obtener todas las canchas
   async getAllFields() {
     try {
       console.log("🔍 FieldsService: Obteniendo canchas...");
@@ -14,7 +13,6 @@ export const fieldsService = {
     }
   },
 
-  // Obtener cancha por ID
   async getFieldById(id) {
     try {
       console.log(`🔍 FieldsService: Obteniendo cancha ID ${id}...`);
@@ -29,7 +27,6 @@ export const fieldsService = {
     }
   },
 
-  // Crear cancha (solo admin)
   async createField(fieldName) {
     try {
       console.log("🎯 FieldsService: Creando cancha...", fieldName);
@@ -44,7 +41,6 @@ export const fieldsService = {
     }
   },
 
-  // Actualizar cancha (solo admin)
   async updateField(id, fieldName) {
     try {
       console.log(`🔄 FieldsService: Actualizando cancha ID ${id}...`, fieldName);
@@ -59,7 +55,6 @@ export const fieldsService = {
     }
   },
 
-  // Eliminar cancha (solo admin)
   async deleteField(id) {
     try {
       console.log(`🗑️ FieldsService: Eliminando cancha ID ${id}...`);
@@ -74,7 +69,6 @@ export const fieldsService = {
     }
   },
 
-  // Formatear para select
   formatForSelect(fields) {
     return fields.map(field => ({
       value: field.id,
