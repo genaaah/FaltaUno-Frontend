@@ -94,6 +94,9 @@ export default function Store() {
     setCartItems((prev) =>
       prev.map((p) => (p.product.id === productId ? { ...p, qty } : p))
     );
+    setCartItems((prev) =>
+      prev.map((p) => (p.product.id === productId ? { ...p, qty } : p))
+    );
   };
 
   const handleClear = () => setCartItems([]);
@@ -112,6 +115,7 @@ export default function Store() {
       <h1 className="text-2xl font-bold mb-4">Tienda Falta1</h1>
       {message && <div className="mb-4 text-sm text-green-700">{message}</div>}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div className="lg:col-span-3 grid gap-4 grid-cols-[repeat(auto-fit,minmax(180px,1fr))]">
         <div className="lg:col-span-3 grid gap-4 grid-cols-[repeat(auto-fit,minmax(180px,1fr))]">
           {products.map((prod) => (
             <ProductCard key={prod.id} product={prod} onAdd={handleAdd} />

@@ -1,211 +1,70 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
-import { useMatches } from "../hooks/useMatches";
-import { userSearchService } from "../services/userSearchService";
-import CreateMatchModal from "../components/Game/CreateMatchModal";
-import MatchGrid from "../components/Game/MatchGrid";
-import Calendar from "../components/Calendar/Calendar";
+import MatchList from "../components/Matches/MatchList";
 
 function Game() {
   const { user } = useAuth();
-  const { matches, createMatch, deleteMatch, joinMatch, leaveMatch } =
-    useMatches();
-  const location = useLocation();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false);
-  const [selectedCalendarDate, setSelectedCalendarDate] = useState(null);
+  const [activeTab] = useState("all");
+  const isCaptain = user?.rol === "capitan";
 
-  const allUsers = JSON.parse(localStorage.getItem("allUsers") || "[]");
-
-  useEffect(() => {
-    const urlParams = new URLSearchParams(location.search);
-    if (urlParams.get('calendar') === 'true') {
-      setIsCalendarOpen(true);
-    }
-  }, [location.search]);
-
-  const handleCreateMatch = (newMatch) => {
-    const exists = matches.some(
-      (match) =>
-        match.cancha === newMatch.cancha &&
-        match.fecha === newMatch.fecha &&
-        match.hora === newMatch.hora
-    );
-
-    if (exists) {
-      alert("Ya hay un partido en esa cancha, fecha y hora.");
-      return;
-    }
-
-    createMatch(newMatch);
-  };
-
-  const handleJoinMatch = (matchId) => {
-    joinMatch(matchId);
-  };
-
-  const handleLeaveMatch = (matchId) => {
-    leaveMatch(matchId);
-  };
-
-  const handleDeleteMatch = (matchId) => {
-    if (window.confirm("¿Estás seguro de que querés eliminar este partido?")) {
-      deleteMatch(matchId);
-    }
-  };
+  const teamInitial = user?.equipo?.nombre?.charAt(0)?.toUpperCase() || "?";
+  const teamName = user?.equipo?.nombre || "Sin equipo";
+  const teamSize = user?.equipo?.cantidad_jugadores || 1;
+  const teamPercentage = Math.min((teamSize / 5) * 100, 100);
 
   return (
-    <div className="flex-1 p-8 overflow-auto bg-green-50">
-      <div className="flex justify-center gap-4 mb-8 flex-wrap">
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="bg-green-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-green-700 transition-colors"
-        >
-          CREAR PARTIDO
-        </button>
-        <button
-          onClick={() => alert("Próximamente...")}
-          className="bg-green-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-green-700 transition-colors"
-        >
-          COMPLETAR PARTIDO
-        </button>
-        <button
-          onClick={() => setIsCalendarModalOpen(true)}
-          className="bg-green-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-green-700 transition-colors"
-        >
-          VER CALENDARIO
-        </button>
-      </div>
-
-      <MatchGrid
-        matches={matches}
-        users={allUsers}
-        onDelete={handleDeleteMatch}
-        onJoin={handleJoinMatch}
-        onLeave={handleLeaveMatch}
-      />
-
-      <CreateMatchModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onCreate={handleCreateMatch}
-      />
-
-      {isCalendarModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 overflow-auto">
-          <div className="bg-white rounded-2xl p-8 w-full max-w-2xl my-8 relative">
-            <button
-              onClick={() => setIsCalendarModalOpen(false)}
-              className="absolute top-4 right-4 text-2xl text-gray-500 hover:text-gray-700 z-10"
-            >
-              &times;
-            </button>
-
-            <h2 className="text-2xl font-bold text-green-600 mb-6 text-center">
-              Calendario de Partidos
-            </h2>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div>
-                <Calendar
-                  onDateSelect={setSelectedCalendarDate}
-                  selectedDate={selectedCalendarDate}
-                  compact={false}
-                />
-              </div>
-              <div className="space-y-4">
-                <h3 className="text-lg font-bold text-green-600">
-                  {selectedCalendarDate
-                    ? "Partidos en esta fecha"
-                    : "Próximos partidos"}
-                </h3>
-
-                {selectedCalendarDate && (
-                  <button
-                    onClick={() => setSelectedCalendarDate(null)}
-                    className="w-full mb-4 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-300 transition-colors"
-                  >
-                    Limpiar filtro
-                  </button>
-                )}
-
-                <div className="space-y-3 max-h-96 overflow-y-auto">
-                  {(selectedCalendarDate
-                    ? matches.filter(
-                        (match) => match.fecha === selectedCalendarDate
-                      )
-                    : matches
-                  ).length > 0 ? (
-                    (selectedCalendarDate
-                      ? matches.filter(
-                          (match) => match.fecha === selectedCalendarDate
-                        )
-                      : matches
-                    ).map((match) => {
-                      const localTeam = allUsers.find(
-                        (u) => u.id === match.idEquipoLocal
-                      );
-                      const visitingTeam = allUsers.find(
-                        (u) => u.id === match.idEquipoVisitante
-                      );
-
-                      return (
-                        <div
-                          key={match.id}
-                          className="border-l-4 border-green-600 bg-gradient-to-r from-green-50 to-white p-4 rounded-lg hover:shadow-md transition-shadow"
-                        >
-                          <p className="font-bold text-green-700 text-sm">
-                            {match.cancha}
-                          </p>
-                          <p className="text-xs text-gray-600 mb-2">
-                            {match.fecha} • {match.hora}:00 HS
-                          </p>
-
-                          <div className="flex items-center gap-2 mb-2">
-                            <img
-                              src={localTeam?.team_shield}
-                              alt="Local"
-                              className="w-6 h-6 object-contain"
-                            />
-                            <span className="text-xs font-semibold text-gray-800 flex-1">
-                              {localTeam?.team_name}
-                            </span>
-                          </div>
-
-                          {visitingTeam ? (
-                            <div className="flex items-center gap-2">
-                              <img
-                                src={visitingTeam?.team_shield}
-                                alt="Visitante"
-                                className="w-6 h-6 object-contain"
-                              />
-                              <span className="text-xs font-semibold text-gray-800 flex-1">
-                                {visitingTeam?.team_name}
-                              </span>
-                            </div>
-                          ) : (
-                            <p className="text-xs text-green-600 font-semibold">
-                              Esperando oponente...
-                            </p>
-                          )}
-                        </div>
-                      );
-                    })
-                  ) : (
-                    <div className="text-center py-8">
-                      <p className="text-gray-500 text-sm">
-                        {selectedCalendarDate
-                          ? "No hay partidos en esta fecha"
-                          : "No hay partidos próximos"}
-                      </p>
-                    </div>
-                  )}
+    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
+      <div className="container px-4 py-6 mx-auto md:py-8">
+        <div className="max-w-6xl mx-auto">
+          <header className="mb-8 text-center md:mb-12">
+            <h1 className="mb-3 text-4xl font-bold text-gray-800 md:text-5xl">
+              Partidos
+            </h1>
+            <p className="max-w-2xl mx-auto text-lg text-gray-600 md:text-xl">
+              Encuentra partidos para unirte, gestiona los de tu equipo o crea
+              nuevos encuentros.
+            </p>
+          </header>
+          <section className="mb-8">
+            <div className="p-4 bg-white rounded-xl shadow-lg md:p-6">
+              <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div className="flex flex-col items-center gap-4 sm:flex-row">
+                  <div className="flex items-center justify-center w-16 h-16 text-2xl font-bold text-white bg-green-600 rounded-full md:w-20 md:h-20 md:text-3xl">
+                    {teamInitial}
+                  </div>
+                  <div className="text-center sm:text-left">
+                    <h3 className="text-xl font-bold text-gray-800 md:text-2xl">
+                      {teamName}
+                    </h3>
+                    <p className="text-gray-600">
+                      {isCaptain
+                        ? "Capitán - Puedes crear partidos"
+                        : "Jugador - Puedes unirte a partidos"}
+                    </p>
+                  </div>
+                </div>
+                <div className="text-center md:text-right">
+                  <div className="text-2xl font-bold text-gray-800 md:text-3xl">
+                    {teamSize}/5
+                  </div>
+                  <p className="text-gray-600">Jugadores en equipo</p>
+                  <div className="w-full max-w-xs mx-auto mt-2 bg-gray-200 rounded-full h-2 md:w-48 md:mx-0">
+                    <div
+                      className="h-2 rounded-full bg-green-500"
+                      style={{ width: `${teamPercentage}%` }}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          </section>
+          <section className="mt-8">
+            <div className="p-4 bg-white rounded-xl shadow-lg md:p-6 lg:p-8">
+              <MatchList isMyMatches={false} />
+            </div>
+          </section>
         </div>
-      )}
+      </div>
     </div>
   );
 }

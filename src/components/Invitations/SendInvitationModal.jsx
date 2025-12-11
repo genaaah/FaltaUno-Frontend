@@ -87,7 +87,7 @@ function SendInvitationModal({ isOpen, onClose }) {
 
     if (!userToInvite) {
       setError(
-        "Usuario no encontrado. Verifica que: 1) El email sea correcto, 2) El usuario tenga visible=true, 3) No tenga equipo."
+        "Usuario no encontrado. Verifica que el email sea correcto, el usuario tenga visible=true y no tenga equipo."
       );
       return;
     }
@@ -144,20 +144,26 @@ function SendInvitationModal({ isOpen, onClose }) {
     }
   };
 
+  const LoadingSpinner = ({ size = "h-5 w-5", color = "border-green-600" }) => (
+    <div
+      className={`animate-spin rounded-full border-b-2 ${size} ${color}`}
+    ></div>
+  );
+
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-hidden">
-        <div className="p-6">
-          <div className="flex justify-between items-center mb-6">
-            <div>
-              <h3 className="text-2xl font-bold text-gray-800">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-hidden mx-3 sm:mx-4">
+        <div className="p-4 sm:p-6">
+          <div className="flex justify-between items-start gap-4 mb-4 sm:mb-6">
+            <div className="min-w-0">
+              <h3 className="text-xl sm:text-2xl font-bold text-gray-800">
                 Invitar Jugadores
               </h3>
-              <p className="text-gray-600 text-sm mt-1">
+              <p className="text-gray-600 text-xs sm:text-sm mt-1">
                 Invita jugadores a unirse a tu equipo:{" "}
-                <strong>{user?.equipo?.nombre}</strong>
+                <strong className="truncate">{user?.equipo?.nombre}</strong>
               </p>
               <p className="text-gray-500 text-xs mt-1">
                 Jugadores disponibles: {availableUsers.length}
@@ -165,10 +171,12 @@ function SendInvitationModal({ isOpen, onClose }) {
             </div>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
+              className="text-gray-400 hover:text-gray-600 transition-colors p-1 flex-shrink-0"
+              disabled={isLoading}
+              aria-label="Cerrar modal"
             >
               <svg
-                className="w-6 h-6"
+                className="w-5 h-5 sm:w-6 sm:h-6"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -183,26 +191,26 @@ function SendInvitationModal({ isOpen, onClose }) {
             </button>
           </div>
 
-          <form onSubmit={handleInviteByEmail} className="mb-6">
-            <div className="flex gap-2">
+          <form onSubmit={handleInviteByEmail} className="mb-4 sm:mb-6">
+            <div className="flex flex-col sm:flex-row gap-2">
               <div className="flex-1 relative">
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Buscar por nombre, apellido o email..."
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent pr-10"
+                  className="w-full px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-sm sm:text-base pr-10"
                 />
                 {isSearching && (
-                  <div className="absolute right-3 top-3">
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-green-600"></div>
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                    <LoadingSpinner size="h-4 w-4 sm:h-5 sm:w-5" />
                   </div>
                 )}
               </div>
               <button
                 type="submit"
                 disabled={isLoading || !searchQuery.trim()}
-                className="bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed whitespace-nowrap"
+                className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-semibold hover:from-green-700 hover:to-emerald-700 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:from-green-600 disabled:hover:to-emerald-600 whitespace-nowrap text-sm sm:text-base shadow-md hover:shadow-lg active:scale-[0.98]"
               >
                 {isLoading ? "Enviando..." : "Invitar"}
               </button>
@@ -211,9 +219,9 @@ function SendInvitationModal({ isOpen, onClose }) {
 
           {error && (
             <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-              <div className="flex items-center gap-2">
+              <div className="flex items-start gap-2">
                 <svg
-                  className="w-5 h-5"
+                  className="w-5 h-5 flex-shrink-0 mt-0.5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -225,16 +233,16 @@ function SendInvitationModal({ isOpen, onClose }) {
                     d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                   />
                 </svg>
-                {error}
+                <span className="text-sm">{error}</span>
               </div>
             </div>
           )}
 
           {success && (
             <div className="mb-4 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
-              <div className="flex items-center gap-2">
+              <div className="flex items-start gap-2">
                 <svg
-                  className="w-5 h-5"
+                  className="w-5 h-5 flex-shrink-0 mt-0.5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -246,21 +254,20 @@ function SendInvitationModal({ isOpen, onClose }) {
                     d="M5 13l4 4L19 7"
                   />
                 </svg>
-                {success}
+                <span className="text-sm">{success}</span>
               </div>
             </div>
           )}
-
           <div className="border-t border-gray-200 pt-4">
-            <div className="flex justify-between items-center mb-3">
-              <h4 className="font-semibold text-gray-700">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+              <h4 className="font-semibold text-gray-700 text-sm sm:text-base">
                 Jugadores disponibles ({availableUsers.length})
               </h4>
               <button
                 type="button"
                 onClick={loadAvailableUsers}
                 disabled={isSearching}
-                className="text-sm text-green-600 hover:text-green-800 font-semibold flex items-center gap-1 disabled:opacity-50"
+                className="text-sm text-green-600 hover:text-green-800 font-medium flex items-center gap-1 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed self-end sm:self-auto"
               >
                 <svg
                   className="w-4 h-4"
@@ -281,13 +288,13 @@ function SendInvitationModal({ isOpen, onClose }) {
 
             {isSearching && availableUsers.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto mb-3"></div>
-                <p>Buscando jugadores...</p>
+                <LoadingSpinner size="h-8 w-8" className="mx-auto mb-3" />
+                <p className="text-sm">Buscando jugadores...</p>
               </div>
             ) : availableUsers.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
+              <div className="text-center py-6 sm:py-8 text-gray-500">
                 <svg
-                  className="w-12 h-12 mx-auto text-gray-300 mb-3"
+                  className="w-12 h-12 sm:w-16 sm:h-16 mx-auto text-gray-300 mb-3"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -299,32 +306,34 @@ function SendInvitationModal({ isOpen, onClose }) {
                     d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
                   />
                 </svg>
-                <p className="font-medium text-gray-700">
+                <p className="font-medium text-gray-700 text-sm sm:text-base">
                   No hay jugadores disponibles
                 </p>
-                <p className="text-gray-500 text-sm mt-1">
+                <p className="text-gray-500 text-xs sm:text-sm mt-1 max-w-xs mx-auto">
                   Todos los usuarios están en equipos o no tienen visible=true
                 </p>
               </div>
             ) : (
-              <div className="space-y-3 max-h-64 overflow-y-auto pr-2">
+              <div className="space-y-2 max-h-48 sm:max-h-64 overflow-y-auto pr-1 sm:pr-2">
                 {availableUsers.map((userItem) => (
                   <div
                     key={userItem.id}
-                    className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50"
+                    className="flex flex-col sm:flex-row sm:items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors duration-200 gap-2 sm:gap-3"
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-800 font-bold">
-                        {userItem.nombre?.charAt(0) || "U"}
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="flex-shrink-0">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-100 to-sky-100 rounded-full flex items-center justify-center text-blue-800 font-bold text-sm sm:text-base">
+                          {userItem.nombre?.charAt(0) || "U"}
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-medium text-gray-800">
+                      <div className="min-w-0">
+                        <p className="font-medium text-gray-800 text-sm sm:text-base truncate">
                           {userItem.nombre} {userItem.apellido}
                         </p>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-xs sm:text-sm text-gray-500 truncate">
                           {userItem.correo_electronico}
                         </p>
-                        <div className="flex items-center gap-2 mt-1">
+                        <div className="flex items-center gap-1.5 mt-1">
                           <span className="text-xs px-2 py-0.5 bg-green-100 text-green-800 rounded">
                             {userItem.rol || "usuario"}
                           </span>
@@ -337,10 +346,11 @@ function SendInvitationModal({ isOpen, onClose }) {
                     <button
                       onClick={() => handleInviteUser(userItem)}
                       disabled={isLoading}
-                      className="bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-green-600 transition-colors disabled:opacity-50 flex items-center gap-1"
+                      className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold hover:from-green-600 hover:to-emerald-600 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1 mt-2 sm:mt-0 self-end sm:self-auto shadow-sm hover:shadow-md active:scale-[0.98]"
+                      aria-label={`Invitar a ${userItem.nombre}`}
                     >
                       <svg
-                        className="w-4 h-4"
+                        className="w-3 h-3 sm:w-4 sm:h-4"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -360,14 +370,14 @@ function SendInvitationModal({ isOpen, onClose }) {
             )}
           </div>
 
-          <div className="mt-6 pt-6 border-t border-gray-200">
-            <h4 className="font-medium text-gray-700 mb-2">
+          <div className="mt-5 sm:mt-6 pt-4 sm:pt-6 border-t border-gray-200">
+            <h4 className="font-medium text-gray-700 text-sm sm:text-base mb-2 sm:mb-3">
               Información importante
             </h4>
-            <ul className="text-sm text-gray-600 space-y-2">
+            <ul className="text-xs sm:text-sm text-gray-600 space-y-1.5 sm:space-y-2">
               <li className="flex items-start gap-2">
                 <svg
-                  className="w-4 h-4 text-green-500 mt-0.5"
+                  className="w-3 h-3 sm:w-4 sm:h-4 text-green-500 mt-0.5 flex-shrink-0"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -386,7 +396,7 @@ function SendInvitationModal({ isOpen, onClose }) {
               </li>
               <li className="flex items-start gap-2">
                 <svg
-                  className="w-4 h-4 text-green-500 mt-0.5"
+                  className="w-3 h-3 sm:w-4 sm:h-4 text-green-500 mt-0.5 flex-shrink-0"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -402,7 +412,7 @@ function SendInvitationModal({ isOpen, onClose }) {
               </li>
               <li className="flex items-start gap-2">
                 <svg
-                  className="w-4 h-4 text-green-500 mt-0.5"
+                  className="w-3 h-3 sm:w-4 sm:h-4 text-green-500 mt-0.5 flex-shrink-0"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -420,7 +430,7 @@ function SendInvitationModal({ isOpen, onClose }) {
               </li>
               <li className="flex items-start gap-2">
                 <svg
-                  className="w-4 h-4 text-green-500 mt-0.5"
+                  className="w-3 h-3 sm:w-4 sm:h-4 text-green-500 mt-0.5 flex-shrink-0"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
