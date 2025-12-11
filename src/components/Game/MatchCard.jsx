@@ -13,7 +13,6 @@ function MatchCard({
 
   const isLocalTeam = match.idEquipoLocal === user.id;
   const isVisitingTeam = match.idEquipoVisitante === user.id;
-  const canJoin = !isLocalTeam && !isVisitingTeam && !match.idEquipoVisitante;
 
   return (
     <div className="bg-white rounded-2xl p-6 shadow-lg hover:scale-105 transition-transform">
