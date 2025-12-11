@@ -45,7 +45,6 @@ function Home() {
               </span>
             </div>
             <button
-              onClick={() => navigate("/game")}
               className="bg-green-600 text-white py-4 px-8 rounded-xl font-bold text-lg hover:bg-green-700 transition-colors w-full"
             >
               BUSCAR PARTIDO

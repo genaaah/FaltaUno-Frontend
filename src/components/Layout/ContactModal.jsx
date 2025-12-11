@@ -12,13 +12,13 @@ function ContactModal({ isOpen, onClose }) {
   const [errors, setErrors] = useState({ nombre: "", email: "" });
 
   const validateName = (name) => {
-    if (!name || name.trim().length < 2) return "El nombre debe tener al menos 2 caracteres.";
+    if (!name || name.trim().length < 2)
+      return "El nombre debe tener al menos 2 caracteres.";
     return "";
   };
 
   const validateEmail = (email) => {
     if (!email) return "El email es requerido.";
-    // simple email regex
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!re.test(email)) return "Ingresá un email válido.";
     return "";
@@ -31,7 +31,6 @@ function ContactModal({ isOpen, onClose }) {
       [name]: value,
     }));
 
-    // Real-time validation for nombre and email
     if (name === "nombre") {
       setErrors((prev) => ({ ...prev, nombre: validateName(value) }));
     }
@@ -43,23 +42,21 @@ function ContactModal({ isOpen, onClose }) {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Validate before submit
     const nombreError = validateName(formData.nombre);
     const emailError = validateEmail(formData.email);
     setErrors({ nombre: nombreError, email: emailError });
 
     if (nombreError || emailError || !formData.consulta) {
-      alert("Por favor, completá correctamente los campos obligatorios (Nombre, Email, Consulta)");
+      alert(
+        "Por favor, completá correctamente los campos obligatorios (Nombre, Email, Consulta)"
+      );
       return;
     }
 
-    // Aquí puedes agregar lógica para enviar el email (ej: a un backend)
     console.log("Formulario de contacto enviado:", formData);
 
-    // Mostrar mensaje de éxito
     setSubmitted(true);
 
-    // Limpiar formulario después de 2 segundos y cerrar modal
     setTimeout(() => {
       setFormData({
         nombre: "",
@@ -116,7 +113,9 @@ function ContactModal({ isOpen, onClose }) {
                   onChange={handleChange}
                   placeholder="Tu nombre"
                   aria-invalid={errors.nombre ? "true" : "false"}
-                  className={`w-full px-3 sm:px-4 py-2 sm:py-3 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm border ${errors.nombre ? 'border-red-400' : 'border-gray-300'}`}
+                  className={`w-full px-3 sm:px-4 py-2 sm:py-3 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm border ${
+                    errors.nombre ? "border-red-400" : "border-gray-300"
+                  }`}
                   required
                 />
                 {errors.nombre && (
@@ -139,7 +138,9 @@ function ContactModal({ isOpen, onClose }) {
                   onChange={handleChange}
                   placeholder="tu@email.com"
                   aria-invalid={errors.email ? "true" : "false"}
-                  className={`w-full px-3 sm:px-4 py-2 sm:py-3 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm border ${errors.email ? 'border-red-400' : 'border-gray-300'}`}
+                  className={`w-full px-3 sm:px-4 py-2 sm:py-3 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm border ${
+                    errors.email ? "border-red-400" : "border-gray-300"
+                  }`}
                   required
                 />
                 {errors.email && (
