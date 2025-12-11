@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
+import Calendar from "../Calendar/Calendar";
 
 function CreateMatchModal({ isOpen, onClose, onCreate }) {
   const { user } = useAuth();
@@ -53,11 +54,11 @@ function CreateMatchModal({ isOpen, onClose, onCreate }) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl p-8 w-full max-w-md relative">
+    <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 overflow-auto">
+      <div className="bg-white rounded-2xl p-8 w-full max-w-5xl my-8 relative">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-2xl text-gray-500 hover:text-gray-700"
+          className="absolute top-4 right-4 text-2xl text-gray-500 hover:text-gray-700 z-10"
         >
           &times;
         </button>
@@ -66,60 +67,79 @@ function CreateMatchModal({ isOpen, onClose, onCreate }) {
           CREAR PARTIDO
         </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="text"
-            value={user?.team_name}
-            disabled
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-100"
-          />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Form */}
+          <div>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <input
+                type="text"
+                value={user?.team_name}
+                disabled
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-100"
+              />
 
-          <select
-            name="cancha"
-            value={formData.cancha}
-            onChange={handleChange}
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent"
-            required
-          >
-            <option value="">Elegí una cancha</option>
-            {canchas.map((cancha) => (
-              <option key={cancha} value={cancha}>
-                {cancha}
-              </option>
-            ))}
-          </select>
+              <select
+                name="cancha"
+                value={formData.cancha}
+                onChange={handleChange}
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                required
+              >
+                <option value="">Elegí una cancha</option>
+                {canchas.map((cancha) => (
+                  <option key={cancha} value={cancha}>
+                    {cancha}
+                  </option>
+                ))}
+              </select>
 
-          <input
-            type="date"
-            name="fecha"
-            value={formData.fecha}
-            onChange={handleChange}
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent"
-            required
-          />
+              <div className="relative">
+                <input
+                  type="date"
+                  name="fecha"
+                  value={formData.fecha}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent bg-green-50"
+                  required
+                />
+                <p className="text-xs text-gray-500 mt-2">O selecciona del calendario →</p>
+              </div>
 
-          <select
-            name="hora"
-            value={formData.hora}
-            onChange={handleChange}
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent"
-            required
-          >
-            <option value="">Elegí un horario</option>
-            {horarios.map((horario) => (
-              <option key={horario} value={horario}>
-                {horario} HS
-              </option>
-            ))}
-          </select>
+              <select
+                name="hora"
+                value={formData.hora}
+                onChange={handleChange}
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                required
+              >
+                <option value="">Elegí un horario</option>
+                {horarios.map((horario) => (
+                  <option key={horario} value={horario}>
+                    {horario} HS
+                  </option>
+                ))}
+              </select>
 
-          <button
-            type="submit"
-            className="w-full bg-green-600 text-white py-3 rounded-xl font-bold hover:bg-green-700 transition-colors"
-          >
-            Crear
-          </button>
-        </form>
+              <button
+                type="submit"
+                className="w-full bg-green-600 text-white py-3 rounded-xl font-bold hover:bg-green-700 transition-colors"
+              >
+                Crear Partido
+              </button>
+            </form>
+          </div>
+
+          {/* Calendar */}
+          <div>
+            <Calendar
+              onDateSelect={(date) =>
+                setFormData((prev) => ({ ...prev, fecha: date }))
+              }
+              selectedDate={formData.fecha}
+              compact={true}
+            />
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -1,0 +1,98 @@
+[
+  {
+    "id": "p1",
+    "name": "Camiseta Falta1",
+    "price": 2500,
+    "currency": "ARS",
+    "description": "Camiseta oficial de Falta1 con logo.",
+    "image": "/REMERA-DEPORTIVA-KADUR-6418be190c1ee.jpg"
+  },
+  {
+    "id": "p2",
+    "name": "Short Deportivo",
+    "price": 1500,
+    "currency": "ARS",
+    "description": "Short deportivo.",
+    "image": "SHORTS-PANTALONES-CORTOS-DEPORTIVOS-KADUR-COMBINADOS-6414cdd3b0dd5.jpg"
+  },
+  {
+    "id": "p3",
+    "name": "Medias",
+    "price": 600,
+    "currency": "ARS",
+    "description": "Medias con compresión ligera.",
+    "image": "/Negro-verde-1-649a0d1ebec14.jpg"
+  },
+  {
+    "id": "p4",
+    "name": "Pelota",
+    "price": 4200,
+    "currency": "ARS",
+    "description": "Pelota.",
+    "image": "/00875657d97514df1bd9dae09b9c7960.jpg"
+  },
+  {
+    "id": "p5",
+    "name": "Botella",
+    "price": 450,
+    "currency": "ARS",
+    "description": "Botella térmica.",
+    "image": "/Termica.jpg"
+  },
+  {
+    "id": "p6",
+    "name": "Gorra Falta1",
+    "price": 700,
+    "currency": "ARS",
+    "description": "Gorra con visera y logo.",
+    "image": "/images (3).jpg"
+  },
+  {
+    "id": "p7",
+    "name": "Toalla de microfibra",
+    "price": 550,
+    "currency": "ARS",
+    "description": "Toalla ligera, de secado rápido, ideal para entrenamientos.",
+    "image": "images (4).jpg"
+  },
+  {
+    "id": "p8",
+    "name": "Botinera",
+    "price": 1800,
+    "currency": "ARS",
+    "description": "Bolsa resistente con compartimento para calzado y bolsillo lateral.",
+    "image": "images (5).jpg"
+  },
+  {
+    "id": "p9",
+    "name": "Muñequera deportiva",
+    "price": 320,
+    "currency": "ARS",
+    "description": "Par de muñequeras absorbentes.",
+    "image": "images (6).jpg"
+  },
+  {
+    "id": "p10",
+    "name": "Cinta de capitán",
+    "price": 250,
+    "currency": "ARS",
+    "description": "Cinta elastica para usar como brazalete de capitán.",
+    "image": "images (7).jpg"
+  },
+  {
+    "id": "p11",
+    "name": "Set de conos (6)",
+    "price": 680,
+    "currency": "ARS",
+    "description": "Conos de entrenamiento apilables.",
+    "image": "images (8).jpg"
+  },
+  {
+    "id": "p12",
+    "name": "Guantes de arquero",
+    "price": 3200,
+    "currency": "ARS",
+    "description": "Guantes con refuerzo en palma y agarre mejorado.",
+    "image": "images (9).jpg"
+  }
+]

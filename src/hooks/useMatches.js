@@ -1,49 +1,72 @@
 import { useState, useEffect } from 'react'
+import api from '../services/api'
 
 export function useMatches() {
   const [matches, setMatches] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+
+  const fetchMatches = async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const response = await api.get('/matches')
+      setMatches(response.data)
+    } catch (err) {
+      setError(err.response?.data?.message || 'Error al obtener partidos')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
-    const storedMatches = localStorage.getItem('matches')
-    if (storedMatches) {
-      setMatches(JSON.parse(storedMatches))
-    }
+    fetchMatches()
   }, [])
 
-  const updateMatches = (newMatches) => {
-    setMatches(newMatches)
-    localStorage.setItem('matches', JSON.stringify(newMatches))
+  const createMatch = async (newMatch) => {
+    try {
+      await api.post('/matches', newMatch)
+      await fetchMatches()
+    } catch (err) {
+      setError(err.response?.data?.message || 'Error al crear partido')
+    }
   }
 
-  const createMatch = (newMatch) => {
-    const updatedMatches = [...matches, newMatch]
-    updateMatches(updatedMatches)
+  const deleteMatch = async (matchId) => {
+    try {
+      await api.delete(`/matches/${matchId}`)
+      await fetchMatches()
+    } catch (err) {
+      setError(err.response?.data?.message || 'Error al eliminar partido')
+    }
   }
 
-  const deleteMatch = (matchId) => {
-    const updatedMatches = matches.filter(match => match.id !== matchId)
-    updateMatches(updatedMatches)
+  const joinMatch = async (matchId) => {
+    try {
+      await api.put(`/matches/join/${matchId}`)
+      await fetchMatches()
+    } catch (err) {
+      setError(err.response?.data?.message || 'Error al unirse al partido')
+    }
   }
 
-  const joinMatch = (matchId, userId) => {
-    const updatedMatches = matches.map(match => 
-      match.id === matchId ? { ...match, idEquipoVisitante: userId } : match
-    )
-    updateMatches(updatedMatches)
-  }
-
-  const leaveMatch = (matchId) => {
-    const updatedMatches = matches.map(match => 
-      match.id === matchId ? { ...match, idEquipoVisitante: null } : match
-    )
-    updateMatches(updatedMatches)
+  const leaveMatch = async (matchId) => {
+    try {
+      await api.put(`/matches/leave/${matchId}`)
+      await fetchMatches()
+    } catch (err) {
+      setError(err.response?.data?.message || 'Error al salir del partido')
+    }
   }
 
   return {
     matches,
+    loading,
+    error,
     createMatch,
     deleteMatch,
     joinMatch,
-    leaveMatch
+    leaveMatch,
+    refetch: fetchMatches
   }
 }
