@@ -1,43 +1,89 @@
 import React, { useEffect, useState } from "react";
-import productsData from "../content/products.json";
 import ProductCard from "../components/Store/ProductCard";
 import Cart from "../components/Store/Cart";
+import { getProducts, getCartByUserId, saveCartToServer } from "../services/productService";
+import { useAuth } from "../context/AuthContext";
 
-const STORAGE_KEY = "falta1_cart";
 
-function loadCart() {
+
+const productsData = async () => {
   try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-  } catch {
+    const products = await getProducts();
+    return products;
+  } catch (error) {
+    console.error("Error loading products:", error);
     return [];
   }
 }
 
-function saveCart(cart) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
-}
-
 export default function Store() {
-  const [products] = useState(productsData);
-  const [cartItems, setCartItems] = useState(() => loadCart());
+  const { user } = useAuth();
+  const [products, setProducts] = useState([]);
+  const [cartItems, setCartItems] = useState([]);
   const [message, setMessage] = useState("");
+  const [loadeded, setLoadeded] = useState(false);
+
 
   useEffect(() => {
-    saveCart(cartItems);
-  }, [cartItems]);
+    if (loadeded) {
+      saveCartToBackend(cartItems);
+    }
+
+  }, [cartItems, loadeded]);
+
+  useEffect(() => {
+    const loadProducts = async () => {
+      const data = await productsData();
+      setProducts(data);
+    };
+    loadProducts();
+  }, []);
+
+  useEffect(() => {
+    const loadCartFromServer = async () => {
+      if (user && user.id) {
+        try {
+          const cartData = await getCartByUserId(user.id);
+          setCartItems(cartData);
+        } catch (error) {
+          console.error('Error loading cart:', error);
+        }
+        finally {
+          setLoadeded(true);
+        }
+      }
+    };
+    loadCartFromServer();
+  }, []);
+
+
+  const saveCartToBackend = async () => {
+    if (user && user.id) {
+      try {
+        await saveCartToServer(user.id, cartItems);
+
+      } catch (error) {
+        console.error('Error saving cart to server:', error);
+      }
+    }
+  }
+
 
   const handleAdd = (product) => {
-    setCartItems((prev) => {
-      const found = prev.find((p) => p.product.id === product.id);
-      if (found) {
-        return prev.map((p) =>
-          p.product.id === product.id ? { ...p, qty: p.qty + 1 } : p
-        );
-      }
-      return [...prev, { product, qty: 1 }];
-    });
-    setMessage("Producto agregado al carrito");
-    setTimeout(() => setMessage(""), 1500);
+    cartItems && console.log("Current cart items:", cartItems);
+    const newCartItems = [...cartItems];
+    const found = newCartItems.find((p) => p.product.id === product.id);
+    if (found) {
+      found.qty += 1;
+    } else {
+      newCartItems.push({ product, qty: 1 });
+    }
+    setCartItems(newCartItems);
+
+    setTimeout(() => {
+      setMessage("")
+    }
+      , 1500);
   };
 
   const handleRemove = (productId) => {
@@ -55,7 +101,10 @@ export default function Store() {
   const handleCheckout = () => {
     setMessage("Compra realizada. Gracias por tu pedido.");
     setCartItems([]);
-    setTimeout(() => setMessage(""), 2500);
+
+    setTimeout(() => {
+      setMessage("");
+    }, 2500);
   };
 
   return (
