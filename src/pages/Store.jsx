@@ -116,21 +116,22 @@ export default function Store() {
       {message && <div className="mb-4 text-sm text-green-700">{message}</div>}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <div className="lg:col-span-3 grid gap-4 grid-cols-[repeat(auto-fit,minmax(180px,1fr))]">
-        <div className="lg:col-span-3 grid gap-4 grid-cols-[repeat(auto-fit,minmax(180px,1fr))]">
-          {products.map((prod) => (
-            <ProductCard key={prod.id} product={prod} onAdd={handleAdd} />
-          ))}
-        </div>
+          <div className="lg:col-span-3 grid gap-4 grid-cols-[repeat(auto-fit,minmax(180px,1fr))]">
+            {products.map((prod) => (
+              <ProductCard key={prod.id} product={prod} onAdd={handleAdd} />
+            ))}
+          </div>
 
-        <aside className="lg:col-span-1">
-          <Cart
-            items={cartItems}
-            onRemove={handleRemove}
-            onChangeQty={handleChangeQty}
-            onCheckout={handleCheckout}
-            onClear={handleClear}
-          />
-        </aside>
+          <aside className="lg:col-span-1">
+            <Cart
+              items={cartItems}
+              onRemove={handleRemove}
+              onChangeQty={handleChangeQty}
+              onCheckout={handleCheckout}
+              onClear={handleClear}
+            />
+          </aside>
+        </div>
       </div>
     </div>
   );

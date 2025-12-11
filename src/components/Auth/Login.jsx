@@ -9,11 +9,8 @@ function Login({ onLogin, onSwitchToRegister }) {
   });
   const [errors, setErrors] = useState({ email: "", password: "" });
   const [isLoading, setIsLoading] = useState(false);
-<<<<<<< HEAD
-=======
   const [showResendLink, setShowResendLink] = useState(false);
   const [isRecoverOpen, setIsRecoverOpen] = useState(false);
->>>>>>> dev
 
   const validateEmail = (email) => {
     if (!email) return "El email es requerido.";
@@ -29,10 +26,7 @@ function Login({ onLogin, onSwitchToRegister }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-<<<<<<< HEAD
-=======
     setShowResendLink(false);
->>>>>>> dev
 
     const emailError = validateEmail(formData.email);
     const passwordError = validatePassword(formData.password);
@@ -47,9 +41,6 @@ function Login({ onLogin, onSwitchToRegister }) {
     setIsLoading(false);
 
     if (!result.success) {
-<<<<<<< HEAD
-      alert(result.message || "Error en el inicio de sesión");
-=======
       if (result.message?.includes("verificar tu cuenta")) {
         setShowResendLink(true);
         await sweetAlert.warning(
@@ -62,7 +53,6 @@ function Login({ onLogin, onSwitchToRegister }) {
           result.message || "Credenciales incorrectas"
         );
       }
->>>>>>> dev
     }
   };
 
@@ -84,98 +74,6 @@ function Login({ onLogin, onSwitchToRegister }) {
       "Cancelar"
     );
 
-<<<<<<< HEAD
-  return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div>
-        <label
-          htmlFor="login-email"
-          className="block text-sm font-medium text-gray-700 mb-2"
-        >
-          Correo electrónico
-        </label>
-        <input
-          type="email"
-          id="login-email"
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
-          placeholder="ejemplo@mail.com"
-          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent ${
-            errors.email ? "border-red-400" : "border-gray-300"
-          }`}
-          aria-invalid={errors.email ? "true" : "false"}
-          required
-        />
-        {errors.email && (
-          <p className="text-red-500 text-xs mt-1">{errors.email}</p>
-        )}
-      </div>
-
-      <div>
-        <label
-          htmlFor="login-password"
-          className="block text-sm font-medium text-gray-700 mb-2"
-        >
-          Contraseña
-        </label>
-        <input
-          type="password"
-          id="login-password"
-          name="password"
-          value={formData.password}
-          onChange={handleChange}
-          placeholder="********"
-          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent ${
-            errors.password ? "border-red-400" : "border-gray-300"
-          }`}
-          aria-invalid={errors.password ? "true" : "false"}
-          required
-        />
-        {errors.password && (
-          <p className="text-red-500 text-xs mt-1">{errors.password}</p>
-        )}
-      </div>
-
-      <button
-        type="submit"
-        className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center"
-        disabled={
-          isLoading ||
-          Boolean(errors.email || errors.password) ||
-          !formData.email ||
-          !formData.password
-        }
-      >
-        {isLoading ? (
-          <>
-            <svg
-              className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              ></circle>
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              ></path>
-            </svg>
-            Iniciando sesión...
-          </>
-        ) : (
-          "Iniciar sesión"
-        )}
-      </button>
-=======
     if (result.isConfirmed) {
       await sweetAlert.success(
         "Solicitud enviada",
@@ -212,7 +110,6 @@ function Login({ onLogin, onSwitchToRegister }) {
     Boolean(errors.email || errors.password) ||
     !formData.email ||
     !formData.password;
->>>>>>> dev
 
   return (
     <div className="space-y-6 sm:space-y-8">
@@ -278,21 +175,6 @@ function Login({ onLogin, onSwitchToRegister }) {
           className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-2.5 sm:py-3 rounded-lg font-semibold hover:from-green-700 hover:to-emerald-700 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:from-green-600 disabled:hover:to-emerald-600 flex items-center justify-center gap-2 shadow-md hover:shadow-lg active:scale-[0.98]"
           disabled={isSubmitDisabled}
         >
-<<<<<<< HEAD
-          Registrate
-        </button>
-      </p>
-      <p className="text-center text-sm mt-2">
-        <button
-          type="button"
-          onClick={() => setIsRecoverOpen(true)}
-          className="text-sm text-green-600 hover:text-green-800 underline"
-        >
-          ¿Olvidaste tu contraseña?
-        </button>
-      </p>
-
-=======
           {isLoading ? (
             <>
               <LoadingSpinner />
@@ -341,16 +223,11 @@ function Login({ onLogin, onSwitchToRegister }) {
           </button>
         </p>
       </div>
->>>>>>> dev
       <RecoverPassword
         isOpen={isRecoverOpen}
         onClose={() => setIsRecoverOpen(false)}
       />
-<<<<<<< HEAD
-    </form>
-=======
     </div>
->>>>>>> dev
   );
 }
 
