@@ -3,7 +3,7 @@ import { useAuth } from "../../context/AuthContext";
 import { teamService } from "../../services/teamService";
 
 function CreateTeamModal({ isOpen, onClose, hasTeam, currentTeamName }) {
-  const { updateUserTeam } = useAuth();
+  const { user, updateUserTeam } = useAuth();
   const [teamName, setTeamName] = useState(currentTeamName || "");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
