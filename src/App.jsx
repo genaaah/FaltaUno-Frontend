@@ -17,6 +17,7 @@ import Profile from "./pages/Profile";
 import EmailVerification from "./components/Auth/EmailVerification";
 import VerificationSuccess from "./components/Auth/VerificationSuccess";
 import PasswordReset from "./components/Auth/PasswordReset";
+import FieldsManagement from "./components/Matches/FieldsManagement";
 
 function LoadingScreen() {
   return (
@@ -77,6 +78,7 @@ function AppContent() {
               <Route path="/" element={<Home />} />
               <Route path="/invitaciones" element={<Invitations />} />
               <Route path="/perfil" element={<Profile />} />
+              <Route path="/canchas" element={<FieldsManagement />} />
               <Route path="/game" element={<Game />} />
               <Route path="/store" element={<Store />} />
               <Route path="/auth" element={<Navigate to="/" replace />} />

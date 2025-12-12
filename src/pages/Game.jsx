@@ -1,15 +1,36 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import MatchList from "../components/Matches/MatchList";
+import { teamService } from "../services/teamService";
 
 function Game() {
   const { user } = useAuth();
+  const [teamData, setTeamData] = useState(null);
   const [activeTab] = useState("all");
   const isCaptain = user?.rol === "capitan";
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        if (user?.equipo?.id) {
+          const teamInfo = await teamService.getTeamById(user.equipo.id);
+          setTeamData(teamInfo);
+        } else {
+          console.warn("No se encontró un ID de equipo válido.");
+        }
+      } catch (error) {
+        console.error("Error al obtener los datos del equipo:", error); // Logueamos el error
+      }
+    };
+
+    if (user) {
+      fetchData();
+    }
+  }, [user]);
+
   const teamInitial = user?.equipo?.nombre?.charAt(0)?.toUpperCase() || "?";
   const teamName = user?.equipo?.nombre || "Sin equipo";
-  const teamSize = user?.equipo?.cantidad_jugadores || 1;
+  const teamSize = teamData?.cantidad_jugadores || 1;
   const teamPercentage = Math.min((teamSize / 5) * 100, 100);
 
   return (
@@ -38,11 +59,15 @@ function Game() {
                     </h3>
                     <p className="text-gray-600">
                       {isCaptain
-                        ? "Capitán - Puedes crear partidos"
-                        : "Jugador - Puedes unirte a partidos"}
+                        ? "Capitán - Puedes crear partidos" 
+                        : (user.equipo !== null
+                          ? "Jugador - Puedes unirte a partidos" 
+                          : "Usuario - Aún no perteneces a un equipo")
+                      }
                     </p>
                   </div>
                 </div>
+                {user.equipo !== null ?
                 <div className="text-center md:text-right">
                   <div className="text-2xl font-bold text-gray-800 md:text-3xl">
                     {teamSize}/5
@@ -55,6 +80,7 @@ function Game() {
                     />
                   </div>
                 </div>
+                : null }
               </div>
             </div>
           </section>

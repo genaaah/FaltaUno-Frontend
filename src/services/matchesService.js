@@ -265,14 +265,14 @@ export const matchesService = {
 
       equipoLocal: localTeam?.equipo?.nombre || "Disponible",
       equipoLocalId: localTeam?.equipo?.id,
-      golesLocal: localTeam?.goles_local,
+      golesLocal: localTeam?.equipo?.goles,
       creadorLocalId: localTeam?.equipo?.creador?.id,
       creadorLocalNombre: localTeam?.equipo?.creador?.nombre,
       creadorLocalApellido: localTeam?.equipo?.creador?.apellido,
 
       equipoVisitante: visitorTeam?.equipo?.nombre || "Disponible",
       equipoVisitanteId: visitorTeam?.equipo?.id,
-      golesVisitante: visitorTeam?.goles_visitante,
+      golesVisitante: visitorTeam?.equipo?.goles,
       creadorVisitanteId: visitorTeam?.equipo?.creador?.id,
       creadorVisitanteNombre: visitorTeam?.equipo?.creador?.nombre,
       creadorVisitanteApellido: visitorTeam?.equipo?.creador?.apellido,
