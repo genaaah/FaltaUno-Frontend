@@ -29,14 +29,14 @@ const EmptyState = ({ isMyMatches, user, onCreateClick }) => (
       {isMyMatches ? "Crea tu primer partido o únete a uno existente" : "Sé el primero en crear un partido"}
     </p>
     {!isMyMatches && user?.rol === "capitan" && (
-      <button 
-        onClick={onCreateClick} 
+      <button
+        onClick={onCreateClick}
         className="bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors flex items-center gap-2 mx-auto"
       >
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
         </svg>
-        Crear Primer Partido
+        Crear Partido
       </button>
     )}
   </div>
@@ -47,8 +47,8 @@ const FilterButton = ({ active, onClick, children, count }) => (
     onClick={onClick}
     className={`
       px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap
-      ${active 
-        ? "bg-green-600 text-white hover:bg-green-700" 
+      ${active
+        ? "bg-green-600 text-white hover:bg-green-700"
         : "bg-gray-100 text-gray-700 hover:bg-gray-200"
       }
     `}
@@ -97,9 +97,9 @@ const normalizeEstado = (raw) => {
 
 const useMatchFilters = () => {
   const [filter, setFilter] = useState("all");
-  
+
   const filters = useMemo(() => [
-    { key: "all", label: "Todos" },
+    { key: "all", label: "Por jugar" },
     { key: "open", label: "Abiertos" },
     { key: "pending", label: "Pendientes" },
     { key: "confirmation", label: "Por confirmar" },
@@ -113,6 +113,25 @@ const useMatchFilters = () => {
 const useMatchStats = (matches, user, isMyMatches) => {
   return useMemo(() => {
     const userEquipoId = user?.equipoId;
+    if (!userEquipoId) {
+      const openMatchs = matches.reduce((acc, m) => {
+        if (m.estado === 'sin_cargar') {
+          acc += 1;
+        }
+
+        return acc;
+      }, 0);
+
+      return {
+        totalCreados: matches.length,
+        open: openMatchs,
+        pending: 0,
+        confirmation: 0,
+        confirmed: 0,
+        rejected: 0
+      };
+    }
+
     const base = isMyMatches
       ? matches.filter((m) => m.equipoLocalId === userEquipoId || m.equipoVisitanteId === userEquipoId)
       : matches.filter((m) => normalizeEstado(m.estado) !== "confirmado");
@@ -120,15 +139,15 @@ const useMatchStats = (matches, user, isMyMatches) => {
     return base.reduce(
       (acc, m) => {
         const estado = normalizeEstado(m.estado);
-        acc.total += 1;
-        if (!m.equipoVisitanteId && estado === "sin_cargar") acc.open += 1;
+        if ((estado === "sin_cargar" || estado === 'confirmado' || estado === 'indefinido') && m.equipoLocalId === user.equipoId) acc.totalCreados += 1;
+        if ((estado === "sin_cargar") && m.equipoVisitanteId === undefined) acc.open += 1;
         if (estado === "sin_cargar" && m.equipoVisitanteId) acc.pending += 1;
-        if (estado === "confirmacion_pendiente") acc.confirmation += 1;
+        if (estado === "confirmacion_pendiente" && m.equipoVisitanteId === user.equipoId) acc.confirmation += 1;
         if (estado === "confirmado") acc.confirmed += 1;
         if (estado === "indefinido") acc.rejected += 1;
         return acc;
       },
-      { total: 0, open: 0, pending: 0, confirmation: 0, confirmed: 0, rejected: 0 }
+      { totalCreados: 0, porJugar: 0, open: 0, pending: 0, confirmation: 0, confirmed: 0, rejected: 0 }
     );
   }, [matches, user, isMyMatches]);
 };
@@ -140,7 +159,7 @@ const useFilteredMatches = (matches, user, isMyMatches, filter) => {
     return matches.filter((match) => {
       const estado = normalizeEstado(match.estado);
 
-      if (!isMyMatches && estado === "confirmado") return false;
+      // if (!isMyMatches && estado === "confirmado") return false;
 
       if (isMyMatches) {
         const isUserMatch = match.equipoLocalId === userEquipoId || match.equipoVisitanteId === userEquipoId;
@@ -149,17 +168,19 @@ const useFilteredMatches = (matches, user, isMyMatches, filter) => {
 
       switch (filter) {
         case "all":
-          return true;
+          return (estado === "sin_cargar" && match.equipoVisitanteId !== undefined);
         case "open":
           return !match.equipoVisitanteId && estado === "sin_cargar";
         case "pending":
           return estado === "sin_cargar" && Boolean(match.equipoVisitanteId);
         case "confirmation":
-          return estado === "confirmacion_pendiente";
+          return estado === "confirmacion_pendiente" && (user.id === match.creadorLocalId || user.id === match.creadorVisitanteId);
         case "confirmed":
           return estado === "confirmado";
         case "rejected":
           return estado === "indefinido";
+        case "history":
+          return ((user.id === match.creadorLocalId || user.id === match.creadorVisitanteId) && (match.estado === 'confirmado' || match.estado === 'indefinido'))
         case "my":
           return match.equipoLocalId === userEquipoId || match.equipoVisitanteId === userEquipoId;
         default:
@@ -175,7 +196,7 @@ function MatchList({ isMyMatches = false }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showCreateForm, setShowCreateForm] = useState(false);
-  
+
   const { filter, setFilter, filters } = useMatchFilters();
   const stats = useMatchStats(matches, user, isMyMatches);
   const filteredMatches = useFilteredMatches(matches, user, isMyMatches, filter);
@@ -184,14 +205,14 @@ function MatchList({ isMyMatches = false }) {
     setLoading(true);
     setError("");
     try {
-      const data = isMyMatches 
-        ? await matchesService.getMyMatches() 
+      const data = isMyMatches
+        ? await matchesService.getMyMatches()
         : await matchesService.getAllMatches();
-      
-      const transformed = Array.isArray(data) 
-        ? data.map((m) => matchesService.transformMatchData(m)) 
+
+      const transformed = Array.isArray(data)
+        ? data.map((m) => matchesService.transformMatchData(m))
         : [];
-      
+
       setMatches(transformed);
     } catch (err) {
       console.error("Error cargando partidos:", err);
@@ -217,10 +238,11 @@ function MatchList({ isMyMatches = false }) {
 
   const availableFilters = useMemo(() => {
     const baseFilters = [
-      { key: "all", label: "Todos", count: stats.total },
+      { key: "all", label: "Por jugar", count: stats.porJugar },
       { key: "open", label: "Abiertos", count: stats.open },
       { key: "pending", label: "Pendientes", count: stats.pending },
       { key: "confirmation", label: "Por confirmar", count: stats.confirmation },
+      { key: "history", label: "Historial", count: null },
     ];
 
     if (isMyMatches) {
@@ -247,8 +269,8 @@ function MatchList({ isMyMatches = false }) {
               {isMyMatches ? "Mis Partidos" : "Partidos Disponibles"}
             </h1>
             <p className="text-gray-600 mt-1 md:mt-2 text-sm md:text-base">
-              {isMyMatches 
-                ? "Gestiona los partidos de tu equipo" 
+              {isMyMatches
+                ? "Gestiona los partidos de tu equipo"
                 : "Encuentra partidos para unirte o crear nuevos"}
             </p>
           </div>
@@ -268,7 +290,7 @@ function MatchList({ isMyMatches = false }) {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 md:gap-3 mb-4 md:mb-6">
-          <StatsCard value={stats.total} label="Total" color="text-gray-800" />
+          <StatsCard value={stats.totalCreados} label="Partidos creados" color="text-gray-800" />
           <StatsCard value={stats.open} label="Abiertos" color="text-green-600" />
           <StatsCard value={stats.pending} label="Pendientes" color="text-yellow-600" />
           <StatsCard value={stats.confirmation} label="Por confirmar" color="text-blue-600" />
@@ -298,18 +320,18 @@ function MatchList({ isMyMatches = false }) {
       {showCreateForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
-            <CreateMatchForm 
-              onSuccess={handleMatchCreated} 
-              onCancel={() => setShowCreateForm(false)} 
+            <CreateMatchForm
+              onSuccess={handleMatchCreated}
+              onCancel={() => setShowCreateForm(false)}
             />
           </div>
         </div>
       )}
 
       {filteredMatches.length === 0 ? (
-        <EmptyState 
-          isMyMatches={isMyMatches} 
-          user={user} 
+        <EmptyState
+          isMyMatches={isMyMatches}
+          user={user}
           onCreateClick={() => setShowCreateForm(true)}
         />
       ) : (
@@ -318,7 +340,7 @@ function MatchList({ isMyMatches = false }) {
             <p className="text-gray-600 text-sm md:text-base">
               Mostrando <span className="font-bold text-green-600">{filteredMatches.length}</span> partido{filteredMatches.length !== 1 ? "s" : ""}
             </p>
-            <button 
+            <button
               onClick={fetchMatches}
               className="text-green-600 hover:text-green-800 font-semibold flex items-center justify-center gap-2 text-sm md:text-base"
             >
@@ -330,14 +352,16 @@ function MatchList({ isMyMatches = false }) {
           </div>
 
           <div className="space-y-3 md:space-y-4">
-            {filteredMatches.map((match) => (
-              <MatchCard 
-                key={match.id} 
-                match={match} 
-                onUpdate={handleMatchUpdated} 
-                isMyMatch={isMyMatches} 
+            {filteredMatches.map((match) => {
+              return (
+              <MatchCard
+                key={match.id}
+                match={match}
+                onUpdate={handleMatchUpdated}
+                isMyMatch={isMyMatches}
               />
-            ))}
+              );
+})}
           </div>
 
           <InfoPanel isMyMatches={isMyMatches} />

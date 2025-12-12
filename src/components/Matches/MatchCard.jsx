@@ -221,11 +221,6 @@ const TeamCard = ({ team, isLocal, isUserTeam, teamName, score }) => {
           )}
         </div>
       </div>
-      {score !== null && score !== undefined && (
-        <div className="text-center">
-          <span className="text-2xl font-bold text-gray-800">{score}</span>
-        </div>
-      )}
       {!team && !isLocal && (
         <p className="text-xs text-gray-500 italic mt-2">Esperando equipo...</p>
       )}
@@ -431,7 +426,8 @@ const LocalWarning = ({ permissions }) => {
   );
 };
 
-const TeamsSection = ({ match, permissions }) => (
+const TeamsSection = ({ match, permissions }) => {
+return (
   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
     <TeamCard
       team={match.equipoLocal}
@@ -448,10 +444,12 @@ const TeamsSection = ({ match, permissions }) => (
             Buscando rival
           </div>
         )}
-        {match.golesLocal !== null && match.golesVisitante !== null && (
-          <div className="text-lg font-bold text-gray-800">
-            {match.golesLocal} - {match.golesVisitante}
-          </div>
+        {(match.golesLocal !== null && 
+          match.golesVisitante !== null &&
+          (match.estado === 'confirmado' || match.estado === 'indefinido')) && (
+            <div className="text-lg font-bold text-gray-800">
+              {match.golesLocal} - {match.golesVisitante}
+            </div>
         )}
       </div>
     </div>
@@ -463,7 +461,8 @@ const TeamsSection = ({ match, permissions }) => (
       score={match.golesVisitante}
     />
   </div>
-);
+)
+};
 
 const ResultForm = ({
   match,
@@ -599,7 +598,10 @@ function MatchCard({ match: rawMatch, onUpdate, isMyMatch = false }) {
       <div className="flex flex-col lg:flex-row lg:items-start gap-4 mb-4">
         <div className="flex-1">
           <MatchHeader match={match} permissions={permissions} />
-          <LocalWarning permissions={permissions} />
+
+          {(match.estado !== 'confirmado' && match.estado !== 'indefinido' && match.estado !== 'confirmacion_pendiente') ? 
+            <LocalWarning permissions={permissions} /> : null}
+
           <TeamsSection match={match} permissions={permissions} />
         </div>
       </div>

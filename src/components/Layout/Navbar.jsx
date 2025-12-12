@@ -75,6 +75,8 @@ function Navbar() {
   const hasTeam = user?.equipo !== null;
   const fullName = user ? `${user.nombre} ${user.apellido}` : "";
   const isCaptain = user?.rol === "capitan";
+  const isAdmin = user?.rol === "admin";
+  const isUsuario = user?.rol === "usuario";
 
   const getUserRole = () => {
     if (!user?.rol) return "";
@@ -286,7 +288,7 @@ function Navbar() {
                   {user.equipo.nombre.charAt(0).toUpperCase()}
                 </div>
               </div>
-            ) : user?.rol === "usuario" ? (
+            ) : isUsuario ? (
               <div className="mt-2">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-gray-700 to-gray-600 rounded-full flex items-center justify-center text-gray-300 font-bold">
                   <svg
@@ -306,7 +308,7 @@ function Navbar() {
               </div>
             ) : null}
 
-            {user?.rol === "usuario" && !hasTeam && (
+            {isUsuario && !hasTeam && (
               <div className="mt-3 w-full px-2">
                 <VisibilityToggle compact={true} />
               </div>
@@ -325,7 +327,8 @@ function Navbar() {
                 showBadge: !hasTeam,
                 badgeCount: invitationCount,
               },
-              { path: "/calendarios", label: "Calendario" },
+              // Solo mostrar "Canchas" si el usuario es admin
+              ...(isAdmin ? [{ path: "/canchas", label: "Canchas" }] : []),
               { path: "/perfil", label: "Mi Perfil" },
             ].map((item) => (
               <li key={item.path}>
@@ -409,31 +412,36 @@ function Navbar() {
           )}
 
           <div className="space-y-2 sm:space-y-3 mb-4">
-            <div className="bg-green-900/50 rounded-lg p-1">
-              <button
-                onClick={() => {
-                  setIsTeamModalOpen(true);
-                  setIsMobileMenuOpen(false);
-                }}
-                className="w-full bg-gradient-to-r from-green-700 to-green-600 text-white py-2 sm:py-2.5 px-3 sm:px-4 rounded-md font-semibold hover:from-green-600 hover:to-green-500 transition-all duration-200 text-xs sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2 shadow-lg hover:shadow-green-900/30 active:scale-[0.98]"
-              >
-                <svg
-                  className="w-3.5 h-3.5 sm:w-4 sm:h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+            {/* Mostrar botón solo si es usuario sin equipo o capitán con equipo */}
+            {(isUsuario && !hasTeam) || (isCaptain && hasTeam) ? (
+              <div className="bg-green-900/50 rounded-lg p-1">
+                <button
+                  onClick={() => {
+                    setIsTeamModalOpen(true);
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="w-full bg-gradient-to-r from-green-700 to-green-600 text-white py-2 sm:py-2.5 px-3 sm:px-4 rounded-md font-semibold hover:from-green-600 hover:to-green-500 transition-all duration-200 text-xs sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2 shadow-lg hover:shadow-green-900/30 active:scale-[0.98]"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                  />
-                </svg>
-                {hasTeam ? "Gestionar Equipo" : "Crear Equipo"}
-              </button>
-            </div>
-            {hasTeam && isCaptain && (
+                  <svg
+                    className="w-3.5 h-3.5 sm:w-4 sm:h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                    />
+                  </svg>
+                  {hasTeam ? "Gestionar Equipo" : "Crear Equipo"}
+                </button>
+              </div>
+            ) : null}
+            
+            {/* Mostrar "Invitar Jugadores" solo si es capitán con equipo */}
+            {isCaptain && hasTeam && (
               <div className="bg-green-900/30 rounded-lg p-1">
                 <button
                   onClick={() => {
@@ -459,6 +467,8 @@ function Navbar() {
                 </button>
               </div>
             )}
+            
+            {/* Mostrar "Salir del equipo" solo si es jugador con equipo */}
             {user?.rol === "jugador" && hasTeam && (
               <div className="bg-yellow-900/20 rounded-lg p-1">
                 <button
